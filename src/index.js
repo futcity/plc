@@ -15,7 +15,7 @@ import { app } from "./app/app.js"
 function main() {
     log.setPath("./")
 
-    if (!cfg.load("./configs/fcplc.json")) {
+    if (!cfg.load("./fcplc.json")) {
         log.error(logMod.INDEX, "Failed to load configs")
         return
     }
