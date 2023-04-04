@@ -1,0 +1,16 @@
+{
+    "pins": {
+        "key": "int-ow-1",
+        "alarm": {
+            "led": "int-alarm-1",
+            "buzzer": "int-relay5-1",
+            "relay": "int-relay10-4"
+        }
+    },
+
+    "sensors": [
+        { "name": "door",     "type": "microwave",  "pin": "int-opto-1", "alarm": true, "enabled": true },
+        { "name": "window",   "type": "pir",        "pin": "int-opto-2", "alarm": true, "enabled": true },
+        { "name": "entrance", "type": "reedswitch", "pin": "int-opto-3", "alarm": true, "enabled": true }
+    ]
+}

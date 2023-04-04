@@ -1,0 +1,8 @@
+{
+    "sockets": [
+        { "name": "Switch1", "relay": "int-relay10-1", "button": "int-opto-1", "enabled": true },
+        { "name": "Switch2", "relay": "int-relay10-2", "button": "int-opto-2", "enabled": true },
+        { "name": "Switch3", "relay": "int-relay10-3", "button": "int-opto-3", "enabled": true },
+        { "name": "Switch4", "relay": "int-relay10-4", "button": "int-opto-4", "enabled": true }
+    ]
+}

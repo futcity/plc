@@ -1,0 +1,8 @@
+{
+    "zones": [
+        { "name": "zone1", "pin": "int-relay10-1", "enabled": true },
+        { "name": "zone2", "pin": "int-relay10-2", "enabled": true },
+        { "name": "zone3", "pin": "int-relay10-3", "enabled": true },
+        { "name": "zone4", "pin": "int-relay10-4", "enabled": true }
+    ]
+}

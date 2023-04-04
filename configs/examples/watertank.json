@@ -1,0 +1,20 @@
+{
+    "tank": {
+        "name": "EuroCube",
+
+        "pins": {
+            "status": {
+                "led": "int-sts-1",
+                "button": "int-opto-5"
+            },
+            "pump": "int-relay16-1",
+            "fill": "int-relay16-2"
+        },
+
+        "levels": [
+            { "name": "low",    "pin": "int-opto-6", "enabled": true },
+            { "name": "middle", "pin": "int-opto-7", "enabled": true },
+            { "name": "high",   "pin": "int-opto-8", "enabled": true }
+        ]
+    }
+}

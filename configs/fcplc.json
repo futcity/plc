@@ -1,0 +1,202 @@
+{
+    "server": {
+        "port": 8000
+    },
+    
+    "controllers": [
+        { 
+            "name": "rack",
+            "type": "socket",
+            "enabled": true,
+            "socket": {
+                "sockets": [
+                    { "name": "switch1", "relay": "int-relay10-1", "button": "int-opto-1", "enabled": true },
+                    { "name": "switch2", "relay": "int-relay10-2", "button": "int-opto-2", "enabled": true },
+                    { "name": "switch3", "relay": "int-relay10-3", "button": "int-opto-3", "enabled": true },
+                    { "name": "switch4", "relay": "int-relay10-4", "button": "int-opto-4", "enabled": true }
+                ]
+            }
+        },
+        {
+            "name": "tank",
+            "type": "watertank",
+            "enabled": true,
+            "watertank": {
+                "pins": {
+                    "pump": "int-relay16-1",
+                    "fill": "int-relay16-2"
+                },
+                "levels": [
+                    { "name": "low",    "pin": "int-opto-6", "enabled": true },
+                    { "name": "middle", "pin": "int-opto-7", "enabled": true },
+                    { "name": "high",   "pin": "int-opto-8", "enabled": true }
+                ]
+            }
+        },
+        {
+            "name": "flowers",
+            "type": "watering",
+            "enabled": true,
+            "watering": {
+                "zones": [
+                    { "name": "zone1", "pin": "int-relay10-1", "enabled": true },
+                    { "name": "zone2", "pin": "int-relay10-2", "enabled": true },
+                    { "name": "zone3", "pin": "int-relay10-3", "enabled": true },
+                    { "name": "zone4", "pin": "int-relay10-4", "enabled": true }
+                ]
+            }
+        },
+        {
+            "name": "table",
+            "type": "security",
+            "enabled": true,
+            "security": {
+                "pins": {
+                    "key": "int-ow-1",
+                    "alarm": {
+                        "led": "int-alarm-1",
+                        "buzzer": "int-relay5-1",
+                        "relay": "int-relay10-4"
+                    }
+                },
+                "sensors": [
+                    { "name": "door",     "type": "microwave",  "pin": "int-opto-1", "alarm": true, "enabled": true },
+                    { "name": "window",   "type": "pir",        "pin": "int-opto-2", "alarm": true, "enabled": true },
+                    { "name": "entrance", "type": "reedswitch", "pin": "int-opto-3", "alarm": true, "enabled": true }
+                ]
+            }
+        }
+    ],
+
+    "extenders": [
+        { "name": "int-lcd-1",  "type": "pcf8574",  "addr": 39, "base": 800, "enabled": true  },
+        { "name": "int-gpio-1", "type": "mcp23017", "addr": 38, "base": 700, "enabled": true  },
+        { "name": "ext-gpio-6", "type": "mcp23017", "addr": 37, "base": 600, "enabled": false },
+        { "name": "ext-gpio-5", "type": "mcp23017", "addr": 36, "base": 500, "enabled": false },
+        { "name": "ext-gpio-4", "type": "mcp23017", "addr": 35, "base": 400, "enabled": false },
+        { "name": "ext-gpio-3", "type": "mcp23017", "addr": 34, "base": 300, "enabled": false },
+        { "name": "ext-gpio-2", "type": "mcp23017", "addr": 33, "base": 200, "enabled": false },
+        { "name": "ext-gpio-1", "type": "mcp23017", "addr": 32, "base": 100, "enabled": false }
+    ],
+
+    "gpio": [
+        { "name": "int-btn-1",     "pin":   0, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "int-btn-2",     "pin":   0, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "int-btn-3",     "pin":   0, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "int-sts-1",     "pin":   0, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-sts-2",     "pin":   0, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-alarm-1",   "pin":   0, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-ow-1",      "pin":  14, "mode": "input",  "pullup": true,  "pulldown": false, "enabled": true  },
+        { "name": "int-lcd-rs",    "pin": 800, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-lcd-strb",  "pin": 801, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-lcd-d0",    "pin": 802, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-lcd-d1",    "pin": 803, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-lcd-d2",    "pin": 804, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-lcd-d3",    "pin": 805, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-relay16-1", "pin": 708, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-relay16-2", "pin": 709, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-relay10-1", "pin": 710, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-relay10-2", "pin": 711, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-relay10-3", "pin": 712, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-relay10-4", "pin": 713, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-relay5-1",  "pin": 714, "mode": "output", "pullup": false, "pulldown": false, "enabled": true  },
+        { "name": "int-opto-1",    "pin": 700, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "int-opto-2",    "pin": 701, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "int-opto-3",    "pin": 702, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "int-opto-4",    "pin": 703, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "int-opto-5",    "pin": 704, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "int-opto-6",    "pin": 705, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "int-opto-7",    "pin": 706, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "int-opto-8",    "pin": 707, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": true  },
+        { "name": "ext6-relay-1",  "pin": 600, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext6-relay-2",  "pin": 601, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext6-relay-3",  "pin": 602, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext6-relay-4",  "pin": 603, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext6-relay-5",  "pin": 604, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext6-relay-6",  "pin": 605, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext6-relay-7",  "pin": 606, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext6-opto-1",   "pin": 608, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext6-opto-2",   "pin": 609, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext6-opto-3",   "pin": 610, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext6-opto-4",   "pin": 611, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext6-opto-5",   "pin": 612, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext6-opto-6",   "pin": 613, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext6-opto-7",   "pin": 614, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext6-opto-8",   "pin": 615, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext5-relay-1",  "pin": 500, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext5-relay-2",  "pin": 501, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext5-relay-3",  "pin": 502, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext5-relay-4",  "pin": 503, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext5-relay-5",  "pin": 504, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext5-relay-6",  "pin": 505, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext5-relay-7",  "pin": 504, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext5-opto-1",   "pin": 508, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext5-opto-2",   "pin": 509, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext5-opto-3",   "pin": 510, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext5-opto-4",   "pin": 511, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext5-opto-5",   "pin": 512, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext5-opto-6",   "pin": 513, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext5-opto-7",   "pin": 514, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext5-opto-8",   "pin": 515, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext4-relay-1",  "pin": 400, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext4-relay-2",  "pin": 401, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext4-relay-3",  "pin": 402, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext4-relay-4",  "pin": 403, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext4-relay-5",  "pin": 404, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext4-relay-6",  "pin": 405, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext4-relay-7",  "pin": 403, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext4-opto-1",   "pin": 408, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext4-opto-2",   "pin": 409, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext4-opto-3",   "pin": 410, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext4-opto-4",   "pin": 411, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext4-opto-5",   "pin": 412, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext4-opto-6",   "pin": 413, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext4-opto-7",   "pin": 414, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext4-opto-8",   "pin": 415, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext3-relay-1",  "pin": 300, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext3-relay-2",  "pin": 301, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext3-relay-3",  "pin": 302, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext3-relay-4",  "pin": 303, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext3-relay-5",  "pin": 304, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext3-relay-6",  "pin": 305, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext3-relay-7",  "pin": 302, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext3-opto-1",   "pin": 308, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext3-opto-2",   "pin": 309, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext3-opto-3",   "pin": 310, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext3-opto-4",   "pin": 311, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext3-opto-5",   "pin": 312, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext3-opto-6",   "pin": 313, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext3-opto-7",   "pin": 314, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext3-opto-8",   "pin": 315, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext2-relay-1",  "pin": 200, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext2-relay-2",  "pin": 201, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext2-relay-3",  "pin": 202, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext2-relay-4",  "pin": 203, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext2-relay-5",  "pin": 204, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext2-relay-6",  "pin": 205, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext2-relay-7",  "pin": 201, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext2-opto-1",   "pin": 208, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext2-opto-2",   "pin": 209, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext2-opto-3",   "pin": 210, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext2-opto-4",   "pin": 211, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext2-opto-5",   "pin": 212, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext2-opto-6",   "pin": 213, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext2-opto-7",   "pin": 214, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext2-opto-8",   "pin": 215, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext1-relay-1",  "pin": 100, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext1-relay-2",  "pin": 101, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext1-relay-3",  "pin": 102, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext1-relay-4",  "pin": 103, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext1-relay-5",  "pin": 104, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext1-relay-6",  "pin": 105, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext1-relay-7",  "pin": 106, "mode": "output", "pullup": false, "pulldown": false, "enabled": false },
+        { "name": "ext1-opto-1",   "pin": 108, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext1-opto-2",   "pin": 109, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext1-opto-3",   "pin": 110, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext1-opto-4",   "pin": 111, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext1-opto-5",   "pin": 112, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext1-opto-6",   "pin": 113, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext1-opto-7",   "pin": 114, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false },
+        { "name": "ext1-opto-8",   "pin": 115, "mode": "input",  "pullup": false, "pulldown": true,  "enabled": false }
+    ]
+}
