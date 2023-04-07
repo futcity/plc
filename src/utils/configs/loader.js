@@ -65,15 +65,14 @@ export class ConfigsLoader {
         log.info(logMod.CONFIGS_LOADER, "Add Socket controller")
 
         for (let sock of this.data.socket.sockets) {
-            if (sock.enabled) {
-                if (this.ctrl.addSocket(new Socket(sock.name, sock.relay, sock.button))) {
-                    log.info(logMod.CONFIGS_LOADER, "Add socket Name: " + sock.name + " Relay: " + sock.relay + " Button: " + sock.button)
-                } else {
-                    log.error(logMod.CONFIGS_LOADER, "Failed to add socket: " + sock.name)
-                    return false
-                }
+            if (this.ctrl.addSocket(new Socket(sock.name, sock.relay, sock.button))) {
+                log.info(logMod.CONFIGS_LOADER, "Add socket Name: " + sock.name + " Relay: " + sock.relay + " Button: " + sock.button)
+            } else {
+                log.error(logMod.CONFIGS_LOADER, "Failed to add socket: " + sock.name)
+                return false
             }
         }
+
         return true
     }
 
@@ -81,10 +80,8 @@ export class ConfigsLoader {
         log.info(logMod.CONFIGS_LOADER, "Add Watering controller")
 
         for (let zone of this.data.watering.zones) {
-            if (zone.enabled) {
-                this.ctrl.addZone(new WateringZone(zone.name, zone.pin))
-                log.info(logMod.CONFIGS_LOADER, "Add watering zone Name: " + zone.name + " Pin: " + zone.pin)
-            }
+            this.ctrl.addZone(new WateringZone(zone.name, zone.pin))
+            log.info(logMod.CONFIGS_LOADER, "Add watering zone Name: " + zone.name + " Pin: " + zone.pin)
         }
 
         return true
@@ -97,10 +94,8 @@ export class ConfigsLoader {
         this.ctrl.setPin(tankPins.FILL_RELAY, this.data.watertank.pins.fill)
 
         for (let level of this.data.watertank.levels) {
-            if (level.enabled) {
-                this.ctrl.addLevel(new WaterLevel(level.name, level.pin))
-                log.info(logMod.CONFIGS_LOADER, "Add water level Name: " + level.name + " Pin: " + level.pin)
-            }
+            this.ctrl.addLevel(new WaterLevel(level.name, level.pin))
+            log.info(logMod.CONFIGS_LOADER, "Add water level Name: " + level.name + " Pin: " + level.pin)
         }
 
         return true

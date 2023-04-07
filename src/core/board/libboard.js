@@ -8,38 +8,50 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { server } from "../server/server.js"
-import { menu } from "./menu.js"
-
-class Application {
-    #ctrls = []
-
-    addController(ctrl) {
-        this.#ctrls.push(ctrl)
+class BoardLibrary {
+    setPinMode(pin, mode) {
+        return true
     }
 
-    getControllers() {
-        return this.#ctrls
+    setPinPull(pin, pull) {
+        return true
     }
 
-    getController(name) {
-        for (let ctrl of this.#ctrls) {
-            if (ctrl.name == name)
-                return ctrl
-        }
+    getPinState(pin) {
+        return 0
     }
 
-    start() {
-        for (let ctrl of this.#ctrls) {
-            if (!ctrl.start())
-                return false
-        }
+    setPinState(pin, state) {
+        return true
+    }
 
-        server.start()
-        menu.start()
+    initMCP23017(base, addr) {
+        return true
+    }
 
+    initPCF8574(base, addr) {
+        return true
+    }
+
+    initLCD1602(base, addr) {
+        return true
+    }
+
+    clearLCD1602() {
+        return true
+    }
+
+    homeLCD1602() {
+        return true
+    }
+
+    posLCD1602(x, y) {
+        return true
+    }
+
+    printLCD1602(str) {
         return true
     }
 }
 
-export const app = new Application()
+export const libBoard = new BoardLibrary()

@@ -8,21 +8,27 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { board, brdPinState, brdPinMode } from "../core/board/board.js"
+import { board, brdPinState, brdPinMode, brdPinPull } from "../core/board/board.js"
 
 export const gpioState = {
-    LOW: 0,
-    HIGH: 1
+    LOW:    0,
+    HIGH:   1
 }
 
 export const gpioMode = {
-    INPUT: 0,
+    INPUT:  0,
     OUTPUT: 1
 }
 
-export const extType = {
-    PCF8574: 0,
-    MCP23017: 1
+export const gpioPullType = {
+    DOWN:   0,
+    HIGH:   1,
+    NONE:   2
+}
+
+export const gpioExtType = {
+    PCF8574:    0,
+    MCP23017:   1
 }
 
 export class GpioExtender {
@@ -36,11 +42,11 @@ export class GpioExtender {
 
     init() {
         switch (this.type) {
-            case extType.MCP23017:
-                return board.initMCP23017(this.addr, this.base)
+            case gpioExtType.MCP23017:
+                return board.initMCP23017(this.base, this.addr)
 
-            case extType.PCF8574:
-                return board.initPCF8574(this.addr, this.base)
+            case gpioExtType.PCF8574:
+                return board.initPCF8574(this.base, this.addr)
         }
         return false
     }
@@ -50,18 +56,18 @@ export class GpioExtender {
 }
 
 export class GpioPin {
-    constructor(name, pin, mode, pullup, pulldown) {
+    constructor(name, pin, mode, pull) {
         this.name = name
         this.pin = pin
         this.mode = mode
-        this.pullUp = pullup
-        this.pullDown = pulldown
+        this.pull = pull
     }
 
     init() {
         let mode = brdPinMode.OUTPUT
+        let pull = brdPinPull.NONE
 
-        switch (mode) {
+        switch (this.mode) {
             case gpioMode.OUTPUT:
                 mode = brdPinMode.OUTPUT
                 break
@@ -71,18 +77,25 @@ export class GpioPin {
                 break
         }
 
-        if (!board.setMode(this.pin, mode))
+        if (!board.setPinMode(this.pin, mode))
             return false
+            
+        switch (this.pull) {
+            case brdPinPull.DOWN:
+                pull = brdPinPull.DOWN
+                break
 
-        if (this.pullDown) {
-            if (!board.pullDown(this.pin))
-                return false
+            case brdPinPull.UP:
+                pull = brdPinPull.UP
+                break
+
+            case brdPinPull.NONE:
+                pull = brdPinPull.NONE
+                break
         }
 
-        if (this.pullUp) {
-            if (!board.pullUp(this.pin))
-                return false
-        }
+        if (!board.setPinPull(this.pin, pull))
+            return false
 
         return true
     }
@@ -97,7 +110,7 @@ class Gpio {
             return gpioState.HIGH;
 
         let p = this.#pins.get(pin)
-        let state = board.readPin(p)
+        let state = board.readPin(p.pin)
 
         switch (state) {
             case brdPinState.HIGH:
@@ -118,10 +131,10 @@ class Gpio {
 
         switch (state) {
             case gpioState.HIGH:
-                return board.writePin(p, brdPinState.HIGH)
+                return board.writePin(p.pin, brdPinState.HIGH)
 
             case gpioState.LOW:
-                return board.writePin(p, brdPinState.LOW)
+                return board.writePin(p.pin, brdPinState.LOW)
         }
 
         return false

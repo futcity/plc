@@ -9,7 +9,7 @@
 /*********************************************************************/
 
 import { logMod, log } from "../log.js"
-import { gpio, extType, GpioExtender, GpioPin, gpioMode } from "../../core/gpio.js"
+import { gpio, gpioExtType, GpioExtender, GpioPin, gpioPullType, gpioMode } from "../../core/gpio.js"
 import { readFileSync } from "fs"
 import { app } from "../../app/app.js"
 import { ctrlType } from "../../controllers/controller.js"
@@ -19,6 +19,7 @@ import { WaterTankController } from "../../controllers/watertank/watertankctrl.j
 import { WateringController } from "../../controllers/watering/wateringctrl.js"
 import { SecurityController } from "../../controllers/security/securityctrl.js"
 import { ConfigsLoader } from "./loader.js"
+import { menu } from "../../app/menu.js"
 
 class Configs {
     load(path) {
@@ -40,6 +41,11 @@ class Configs {
             log.error(logMod.CONFIGS, "Failed to load controllers")
             return false
         }
+
+        if (!this.#loadMenu(data)) {
+            log.error(logMod.CONFIGS, "Failed to init menu")
+            return false
+        }
         
         return true
     }
@@ -52,16 +58,20 @@ class Configs {
     #loadExtenders(data) {
         for (let ext of data.extenders) {
             if (ext.enabled) {
-                let type = extType.MCP23017
+                let type = gpioExtType.MCP23017
 
                 switch (ext.type) {
                     case "mcp23017":
-                        type = extType.MCP23017
+                        type = gpioExtType.MCP23017
                         break
 
                     case "pcf8574":
-                        type = extType.PCF8574
+                        type = gpioExtType.PCF8574
                         break
+
+                    default:
+                        log.error(logMod.CONFIGS, "Unknown extender type: " + ext.type)
+                        return false
                 }
 
                 if (gpio.addExtender(new GpioExtender(ext.name, type, ext.addr, ext.base))) {
@@ -77,92 +87,120 @@ class Configs {
 
     #loadGpio(data) {
         for (let pin of data.gpio) {
-            if (pin.enabled) {
-                let mode = gpioMode.OUTPUT
+            let mode = gpioMode.OUTPUT
+            let pull = gpioPullType.NONE
 
-                switch (pin.mode) {
-                    case "output":
-                        mode = gpioMode.OUTPUT
-                        break
-                    case "input":
-                        mode = gpioMode.INPUT
-                        break
-                    default:
-                        log.error(logMod.CONFIGS, "Unknown gpio mode: " + pin.mode)
-                        return false
-                }
+            switch (pin.mode) {
+                case "output":
+                    mode = gpioMode.OUTPUT
+                    break
 
-                if (gpio.addPin(new GpioPin(pin.name, pin.pin, mode, pin.pullup, pin.pulldown))) {
-                    log.info(logMod.CONFIGS, "Add gpio Name: " + pin.name + " Pin: " + pin.pin + " Mode: " + pin.mode)
-                } else {
-                    log.error(logMod.CONFIGS, "Failed to add gpio Name: " + pin.name)
+                case "input":
+                    mode = gpioMode.INPUT
+                    break
+
+                default:
+                    log.error(logMod.CONFIGS, "Unknown gpio mode: " + pin.mode)
                     return false
-                }
+            }
+
+            switch (pin.pull) {
+                case "down":
+                    pull = gpioPullType.DOWN
+                    break
+
+                case "up":
+                    pull = gpioPullType.UP
+                    break
+
+                case "none":
+                    pull = gpioPullType.NONE
+                    break
+
+                default:
+                    log.error(logMod.CONFIGS, "Unknown gpio pull type: " + pin.pull)
+                    return false
+            }
+
+            if (gpio.addPin(new GpioPin(pin.name, pin.pin, mode, pull))) {
+                log.info(logMod.CONFIGS, "Add gpio Name: " + pin.name + " Pin: " + pin.pin + " Mode: " + pin.mode)
+            } else {
+                log.error(logMod.CONFIGS, "Failed to add gpio Name: " + pin.name)
+                return false
             }
         }
         return true
     }
 
+    #loadMenu(data) {
+        if (!menu.initLCD(data.menu.lcd.base, data.menu.lcd.addr)) {
+            log.error(logMod.CONFIGS, "Failed to init menu LCD")
+            return false
+        }
+
+        menu.setButtons(data.menu.buttons.up, data.menu.buttons.red, data.menu.buttons.down)
+
+        return true
+    }
+
     #loadControllers(data) {
         for (let ctrl of data.controllers) {
-            if (ctrl.enabled) {
-                switch (ctrl.type) {
-                    case ctrlType.SOCKET:
-                        {
-                            let controller = new SocketController(ctrl.name, ctrl.type)
-                            let loader = new ConfigsLoader(ctrl, controller)
-                            if (loader.loadSocket()) {
-                                app.addController(controller)
-                            } else {
-                                log.error(logMod.CONFIGS, "Failed to load socket controller: " + ctrl.name)
-                                return false
-                            }
+            switch (ctrl.type) {
+                case ctrlType.SOCKET:
+                    {
+                        let controller = new SocketController(ctrl.name, ctrl.type)
+                        let loader = new ConfigsLoader(ctrl, controller)
+                        if (loader.loadSocket()) {
+                            app.addController(controller)
+                        } else {
+                            log.error(logMod.CONFIGS, "Failed to load socket controller: " + ctrl.name)
+                            return false
                         }
-                        break
+                    }
+                    break
 
-                    case ctrlType.WATER_TANK:
-                        {
-                            let controller = new WaterTankController(ctrl.name, ctrl.type)
-                            let loader = new ConfigsLoader(ctrl, controller)
-                            if (loader.loadWaterTank()) {
-                                app.addController(controller)
-                            } else {
-                                log.error(logMod.CONFIGS, "Failed to load water tank controller: " + ctrl.name)
-                                return false
-                            }
+                case ctrlType.WATER_TANK:
+                    {
+                        let controller = new WaterTankController(ctrl.name, ctrl.type)
+                        let loader = new ConfigsLoader(ctrl, controller)
+                        if (loader.loadWaterTank()) {
+                            app.addController(controller)
+                        } else {
+                            log.error(logMod.CONFIGS, "Failed to load water tank controller: " + ctrl.name)
+                            return false
                         }
-                        break
+                    }
+                    break
 
-                    case ctrlType.WATERING:
-                        {    
-                            let controller = new WateringController(ctrl.name, ctrl.type)
-                            let loader = new ConfigsLoader(ctrl, controller)
-                            if (loader.loadWatering()) {
-                                app.addController(controller)
-                            } else {
-                                log.error(logMod.CONFIGS, "Failed to load watering controller: " + ctrl.name)
-                                return false
-                            }
+                case ctrlType.WATERING:
+                    {    
+                        let controller = new WateringController(ctrl.name, ctrl.type)
+                        let loader = new ConfigsLoader(ctrl, controller)
+                        if (loader.loadWatering()) {
+                            app.addController(controller)
+                        } else {
+                            log.error(logMod.CONFIGS, "Failed to load watering controller: " + ctrl.name)
+                            return false
                         }
-                        break
+                    }
+                    break
 
-                    case ctrlType.SECURITY:
-                        {
-                            let controller = new SecurityController(ctrl.name, ctrl.type)
-                            let loader = new ConfigsLoader(ctrl, controller)
-                            if (loader.loadSecurity()) {
-                                app.addController(controller)
-                            } else {
-                                log.error(logMod.CONFIGS, "Failed to load security controller: " + ctrl.name)
-                                return false
-                            }
+                case ctrlType.SECURITY:
+                    {
+                        let controller = new SecurityController(ctrl.name, ctrl.type)
+                        let loader = new ConfigsLoader(ctrl, controller)
+                        if (loader.loadSecurity()) {
+                            app.addController(controller)
+                        } else {
+                            log.error(logMod.CONFIGS, "Failed to load security controller: " + ctrl.name)
+                            return false
                         }
-                        break
+                    }
+                    break
 
-                    default:
-                        log.error(logMod.CONFIGS, "Unknown controller type: " + ctrl.type)
-                        return false
-                }
+                default:
+                    log.error(logMod.CONFIGS, "Unknown controller type: " + ctrl.type)
+                    return false
             }
         }
         return true

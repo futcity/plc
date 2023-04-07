@@ -41,12 +41,14 @@ export class Socket {
     }
 
     #updateRelay() {
-        if (this.state) {
-            if (!gpio.writePin(this.relay, gpioState.HIGH))
+        if (this.#state) {
+            if (!gpio.writePin(this.relay, gpioState.HIGH)) {
                 return false
+            }
         } else {
-            if (!gpio.writePin(this.relay, gpioState.LOW))
+            if (!gpio.writePin(this.relay, gpioState.LOW)) {
                 return false
+            }
         }
         return true
     }

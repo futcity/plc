@@ -8,6 +8,11 @@
 /*                                                                   */
 /*********************************************************************/
 
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
+const libBoard = require("bindings")("board")
+//import { libBoard } from "./libboard.js"
+
 export const brdPinState = {
     LOW:    0,
     HIGH:   1
@@ -19,51 +24,57 @@ export const brdPinMode = {
 }
 
 export const brdPinPull = {
-    PULL_DOWN:  0,
-    PULL_UP:    1
+    DOWN:   0,
+    UP:     1,
+    NONE:   2
 }
 
 class Board {
-    setMode(pin, mode) {
-        switch (mode) {
-            case brdPinMode.OUTPUT:
-                break
-
-            case brdPinMode.INPUT:
-                break
-        }
-        return true
+    setPinMode(pin, mode) {
+        return libBoard.setPinMode(pin, mode)
     }
 
-    pullUp(pin) {
-        return true
-    }
-
-    pullDown(pin) {
-        return true
+    setPinPull(pin, pull) {
+        if (pull == brdPinPull.NONE)
+            return true
+        return libBoard.setPinPull(pin, pull)
     }
 
     readPin(pin) {
-        return brdPinState.LOW
+        let state = libBoard.getPinState(pin)
+        return state
     }
 
     writePin(pin, state) {
-        switch (state) {
-            case brdPinState.HIGH:
-                break
-
-            case brdPinState.LOW:
-                break
-        }
-        return true
+        return libBoard.setPinState(pin, state)
     }
 
-    initMCP23017(addr, base) {
-        return true
+    initMCP23017(base, addr) {
+        return libBoard.initMCP23017(base, addr)
     }
 
-    initPCF8574(addr, base) {
-        return true
+    initPCF8574(base, addr) {
+        return libBoard.initPCF8574(base, addr)
+    }
+
+    initLCD1602(base, addr) {
+        return libBoard.initLCD1602(base, addr)
+    }
+
+    clearLCD1602() {
+        return libBoard.clearLCD1602()
+    }
+
+    homeLCD1602() {
+        return libBoard.homeLCD1602()
+    }
+
+    posLCD1602(x, y) {
+        return libBoard.posLCD1602(x, y)
+    }
+
+    printLCD1602(str) {
+        return libBoard.printLCD1602(str)
     }
 }
 
