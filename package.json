@@ -6,14 +6,13 @@
   "type": "module",
   "gypfile": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "clear && node src/index.js"
+    "start": "clear && node src/index.js",
+    "test": "clear && node src/ftest.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "awilix": "^6.1.0",
     "bindings": "^1.5.0",
     "colors": "^1.4.0",
     "express": "^4.18.2",

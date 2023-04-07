@@ -25,8 +25,6 @@ class Configs {
     load(path) {
         let data = this.#loadFromFile(path)
 
-        server.setPort(data.server.port)
-
         if (!this.#loadExtenders(data)) {
             log.error(logMod.CONFIGS, "Failed to load Extenders")
             return false
@@ -36,6 +34,8 @@ class Configs {
             log.error(logMod.CONFIGS, "Failed to load GPIO")
             return false
         }
+
+        server.setPort(data.server.port)
 
         if (!this.#loadControllers(data)) {
             log.error(logMod.CONFIGS, "Failed to load controllers")

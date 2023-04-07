@@ -26,7 +26,8 @@ export const logMod = {
     APP_MODULE_API:     "APP_MODULE_API",
     APP_MODULE:         "APP_MODULE",
     CONTROLLER_API:     "CONTROLLER_API",
-    CONFIGS_LOADER:     "CONFIGS_LOADER"
+    CONFIGS_LOADER:     "CONFIGS_LOADER",
+    FTEST:              "FTEST"
 }
 
 const logType = {
