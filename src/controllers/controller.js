@@ -17,10 +17,13 @@ export const ctrlType = {
 
 export class Controller {
     #pins = new Map()
-    #status = false
 
     constructor(name) {
         this.name = name
+    }
+
+    getName() {
+        return this.name
     }
 
     setPin(id, pin) {
@@ -33,14 +36,5 @@ export class Controller {
 
     start() {
         return true
-    }
-
-    setStatus(val) {
-        this.#status = val
-        return true
-    }
-
-    getStatus() {
-        return this.#status
     }
 }

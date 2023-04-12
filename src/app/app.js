@@ -10,7 +10,6 @@
 
 import { server } from "../server/server.js"
 import { menu } from "./menu.js"
-import { db } from "../database/db.js"
 import { ctrlType } from "../controllers/controller.js"
 import { log, logMod } from "../utils/log.js"
 
@@ -94,9 +93,6 @@ class Application {
             if (!ctrl.start())
                 return false
         }
-
-        log.info(logMod.APP, "Starting Database")
-        //db.connect()
 
         log.info(logMod.APP, "Starting Menu")
         menu.start()

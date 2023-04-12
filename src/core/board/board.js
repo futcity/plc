@@ -10,8 +10,8 @@
 
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
-//const libBoard = require("bindings")("board")
-import { libBoard } from "./libboard.js"
+const libBoard = require("bindings")("board")
+//import { libBoard } from "./libboard.js"
 
 export const brdPinState = {
     LOW:    0,

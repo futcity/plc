@@ -39,6 +39,9 @@ export class SecuritySensor {
                     this.detected = true
                 }
                 break
+
+            default:
+                return false
         }
         return true
     }

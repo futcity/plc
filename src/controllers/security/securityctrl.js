@@ -11,6 +11,7 @@
 import { log, logMod } from "../../utils/log.js"
 import { gpio, gpioState } from "../../core/gpio.js"
 import { Controller } from "../controller.js"
+import { db, dbName } from "../../database/db.js"
 
 const READ_SENSORS_DELAY = 1000
 const ALARM_DELAY = 500
@@ -26,6 +27,11 @@ export class SecurityController extends Controller {
     #sensors = []
     #alarm = false
     #lastAlarm = false
+    #status = false
+
+    getStatus() {
+        return this.#status
+    }
 
     addSensor(sensor) {
         this.#sensors.push(sensor)
@@ -48,9 +54,7 @@ export class SecurityController extends Controller {
         return this.#alarm
     }
 
-    setStatus(val) {
-        super.setStatus(val)
-
+    setStatus(val, save=true) {
         if (!val) {
             if (this.#alarm)
                 this.#setAlarm(false)
@@ -74,6 +78,13 @@ export class SecurityController extends Controller {
             if (!gpio.writePin(super.getPin(secPins.STATUS_LED), gpioState.HIGH))
                 log.error(logMod.SECURITY, "Failed to write status led pin")
         }
+
+        this.#status = val
+
+        if (save) {
+            db.update(dbName.SECURITY, super.getName(), {}, { status: val })
+        }
+
         return true
     }
 
@@ -84,7 +95,7 @@ export class SecurityController extends Controller {
     }
 
     #readSensors() {
-        if (super.getStatus()) {
+        if (this.getStatus()) {
             for (const sensor of this.#sensors) {
                 const lastState = sensor.detected
 
@@ -125,7 +136,7 @@ export class SecurityController extends Controller {
     #alarmHandler() {
         this.#lastAlarm = !this.#lastAlarm
 
-        if (!super.getStatus())
+        if (!this.getStatus())
             return
 
         if (this.#lastAlarm) {

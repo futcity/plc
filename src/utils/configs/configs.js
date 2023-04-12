@@ -23,34 +23,34 @@ import { menu } from "../../app/menu.js"
 import { db } from "../../database/db.js"
 
 class Configs {
-    load(path) {
+    async load(path) {
         const data = this.#loadFromFile(path)
 
         if (!this.#loadExtenders(data)) {
             log.error(logMod.CONFIGS, "Failed to load Extenders")
-            return false
+            process.exit(-1)
         }
 
         if (!this.#loadGpio(data)) {
             log.error(logMod.CONFIGS, "Failed to load GPIO")
-            return false
+            process.exit(-1)
         }
 
         server.setPort(data.server.port)
 
-        if (!this.#loadControllers(data)) {
-            log.error(logMod.CONFIGS, "Failed to load controllers")
-            return false
-        }
-
         if (!this.#loadMenu(data)) {
             log.error(logMod.CONFIGS, "Failed to init menu")
-            return false
+            process.exit(-1)
         }
 
-        if (!this.#loadDatabase(data)) {
-            log.error(logMod.CONFIGS, "Failed to init database")
-            return false
+        if (!await this.#loadDatabase(data)) {
+            log.error(logMod.CONFIGS, "Failed to connect to database")
+            process.exit(-1)
+        }
+
+        if (!await this.#loadControllers(data)) {
+            log.error(logMod.CONFIGS, "Failed to load controllers")
+            process.exit(-1)
         }
         
         return true
@@ -151,7 +151,7 @@ class Configs {
         return true
     }
 
-    #loadControllers(data) {
+    async #loadControllers(data) {
         if (data.controllers.socket.length > 0)
             log.info(logMod.CONFIGS, "Loading socket controllers")
         
@@ -214,10 +214,17 @@ class Configs {
         return true
     }
 
-    #loadDatabase(data) {
+    async #loadDatabase(data) {
         log.info(logMod.CONFIGS, "Loading database")
 
         db.setCreds(data.database.ip, data.database.user, data.database.pass)
+        
+        try {
+            await db.connect()
+        }
+        catch (err) {
+            return false
+        }
 
         return true
     }

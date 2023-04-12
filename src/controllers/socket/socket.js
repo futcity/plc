@@ -9,11 +9,13 @@
 /*********************************************************************/
 
 import { gpio, gpioState } from "../../core/gpio.js"
+import { db, dbName } from "../../database/db.js"
 
 export class Socket {
     #state = false
 
-    constructor(name, relay, button, en) {
+    constructor(ctrlName, name, relay, button, en) {
+        this.ctrlName = ctrlName
         this.name = name
         this.relay = relay
         this.button = button
@@ -27,8 +29,13 @@ export class Socket {
         return false
     }
 
-    setState(val) {
+    setState(val, save=true) {
         this.#state = val
+
+        if (save) {
+            db.update(dbName.SOCKET, this.ctrlName, { name: this.name }, { state: this.#state })
+        }
+    
         return this.#updateRelay()
     }
 

@@ -35,6 +35,7 @@ class SecurityApi {
         let data = []
 
         data.push(new ResponseData("status", ctrl.getStatus()))
+        data.push(new ResponseData("alarm", ctrl.getAlarm()))
         for (const sensor of ctrl.getSensors()) {
             data.push(new ResponseData(sensor.name, sensor.detected))
         }

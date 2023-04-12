@@ -15,6 +15,7 @@ import { WaterLevel } from "../../controllers/watertank/waterlvl.js"
 import { Socket } from "../../controllers/socket/socket.js"
 import { wateringTime, wateringPins } from "../../controllers/watering/wateringctrl.js"
 import { log, logMod } from "../log.js"
+import { db, dbName } from "../../database/db.js"
 
 export class ConfigsLoader {
     constructor(data, ctrl) {
@@ -22,7 +23,7 @@ export class ConfigsLoader {
         this.ctrl = ctrl
     }
 
-    loadSecurity() {
+    async loadSecurity() {
         log.info(logMod.CONFIGS_LOADER, "Add Security controller")
 
         this.ctrl.setPin(secPins.STATUS_LED, this.data.pins.status)
@@ -58,14 +59,43 @@ export class ConfigsLoader {
             let sensor = new SecuritySensor(sens.name, sens.type, sens.pin, sens.alarm)
             this.ctrl.addSensor(sensor)
         }
+
+       /*
+        * Loading states from DB
+        */
+
+        const found = await db.select(dbName.SECURITY, this.ctrl.name, { })
+        if (!found) {
+            await db.insert(dbName.SECURITY, this.ctrl.name, { status: false })
+        } else {
+            this.ctrl.setStatus(found.status, false)
+        }
+
         return true
     }
 
-    loadSocket() {
+    async loadSocket() {
         log.info(logMod.CONFIGS_LOADER, "Add Socket controller")
 
         for (let sock of this.data.sockets) {
-            if (this.ctrl.addSocket(new Socket(sock.name, sock.relay, sock.button))) {
+            const socket = new Socket(this.ctrl.name, sock.name, sock.relay, sock.button)
+
+            /*
+             * Loading states from DB
+             */
+
+            const found = await db.select(dbName.SOCKET, this.ctrl.name, { name: sock.name })
+            if (!found) {
+                await db.insert(dbName.SOCKET, this.ctrl.name, { name: sock.name, state: false })
+            } else {
+                socket.setState(found.state, false)
+            }
+
+            /*
+             * Add socket
+             */
+
+            if (this.ctrl.addSocket(socket)) {
                 log.info(logMod.CONFIGS_LOADER, "Add socket Name: " + sock.name + " Relay: " + sock.relay + " Button: " + sock.button)
             } else {
                 log.error(logMod.CONFIGS_LOADER, "Failed to add socket: " + sock.name)

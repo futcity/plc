@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-  "gypfile": false,
+  "gypfile": true,
   "scripts": {
     "start": "clear && node src/index.js",
     "test": "clear && node src/ftest.js"

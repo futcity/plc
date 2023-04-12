@@ -38,9 +38,9 @@
     },
 
     "database": {
-        "ip": "127.0.0.1",
-        "user": "test",
-        "pass": "test"
+        "ip": "10.5.0.6",
+        "user": "fcuser",
+        "pass": "fcpass"
     },
 
     "menu": {

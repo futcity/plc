@@ -10,6 +10,11 @@
 
 import { MongoClient } from "mongodb"
 
+export const dbName = {
+    SOCKET:     "socket",
+    SECURITY:   "security"
+} 
+
 class Database {
     #ip = ""
     #user = ""
@@ -24,7 +29,13 @@ class Database {
     async connect() {
         const mc = new MongoClient("mongodb://" + this.#user + ":" +
             this.#pass + "@" + this.#ip);
+
         this.client = await mc.connect();
+
+        if (!this.client)
+            return false
+
+        return true
     }
 
     async insert(db, col, val) {
