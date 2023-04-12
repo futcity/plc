@@ -9,6 +9,8 @@
 /*********************************************************************/
 
 export const api = {
-    SOCKET_INFO: "/api/v1/socket",
-    SOCKET_SWITCH: "/api/v1/socket/switch"
+    SOCKET_INFO:        "/api/v1/socket",
+    SOCKET_SWITCH:      "/api/v1/socket/switch",
+    SECURITY_INFO:      "/api/v1/security",
+    SECURITY_STATUS:    "/api/v1/security/status"
 }

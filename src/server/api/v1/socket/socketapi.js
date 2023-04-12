@@ -13,6 +13,7 @@ import { ServerResponse } from "../../../response.js"
 import { SocketResponse } from "./socketresp.js"
 import { app } from "../../../../app/app.js"
 import { api } from "../api.js"
+import { ctrlType } from "../../../../controllers/controller.js"
 
 class SocketApi {
     register(app) {
@@ -21,7 +22,7 @@ class SocketApi {
     }
 
     #info(req) {
-        let ctrl = app.getController(req.query.ctrl)
+        const ctrl = app.getController(ctrlType.SOCKET, req.query.ctrl)
         if (!ctrl) {
             return new ServerResponse(logMod.SOCKET_API).error(
                 "Controller " + req.query.ctrl + " not found")
@@ -33,7 +34,7 @@ class SocketApi {
 
         let sockets = []
 
-        for (let socket of ctrl.getSockets()) {
+        for (const socket of ctrl.getSockets()) {
             sockets.push(new SocketResponse(socket.name, socket.getState()))
         }
 
@@ -42,13 +43,13 @@ class SocketApi {
     }
 
     #switch(req) {
-        let ctrl = app.getController(req.query.ctrl)
+        const ctrl = app.getController(ctrlType.SOCKET, req.query.ctrl)
         if (!ctrl) {
             return new ServerResponse(logMod.SOCKET_API).error(
                 "Controller " + req.query.ctrl + " not found")
         }
 
-        let socket = ctrl.getSocket(req.query.name)
+        const socket = ctrl.getSocket(req.query.name)
         if (!socket) {
             return new ServerResponse(logMod.SOCKET_API).error(
                 "Socket " + req.query.name + " not found")

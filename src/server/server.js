@@ -23,6 +23,7 @@ class ApiServer {
 
     start() {
         apiSocket.register(this.#app)
+        apiSecurity.register(this.#app)
 
         this.#app.listen(this.#port, () => {
             log.info(logMod.SERVER, "API server was started at port: " + this.#port)

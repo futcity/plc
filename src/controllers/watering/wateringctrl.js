@@ -10,15 +10,30 @@
 
 import { Controller } from "../controller.js"
 
+export const wateringPins = {
+    STATUS: 0,
+    RELAY:  1
+}
+
+export const wateringTime = {
+    ON:     0,
+    OFF:    1
+}
+
 export class WateringController extends Controller {
-    #zones = []
+    #time = new Map()
+    #pins = new Map()
+
+    setTime(type, time) {
+        this.#time.set(type, time)
+    }
+
+    setPin(type, pin) {
+        this.#pins.set(type, pin)
+    }
 
     start() {
         super.start()
         return true
-    }
-
-    addZone(zone) {
-        this.#zones.push(zone)
     }
 }

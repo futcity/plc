@@ -19,8 +19,7 @@ export const secPins = {
     STATUS_LED: 0,
     ALARM_BUZZER: 1,
     ALARM_RELAY: 2,
-    ALARM_LED: 3,
-    KEY_READER: 4
+    ALARM_LED: 3
 }
 
 export class SecurityController extends Controller {
@@ -38,7 +37,7 @@ export class SecurityController extends Controller {
     }
 
     getSensor(name) {
-        for (let sensor of this.#sensors) {
+        for (const sensor of this.#sensors) {
             if (sensor.name == name)
                 return sensor
         }
@@ -86,8 +85,8 @@ export class SecurityController extends Controller {
 
     #readSensors() {
         if (super.getStatus()) {
-            for (let sensor of this.#sensors) {
-                let lastState = sensor.detected
+            for (const sensor of this.#sensors) {
+                const lastState = sensor.detected
 
                 if (!sensor.readPin()) {
                     log.error(logMod.SECURITY, "Failed to read pin of sensor " + sensor.name)

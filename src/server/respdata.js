@@ -8,9 +8,9 @@
 /*                                                                   */
 /*********************************************************************/
 
-export class SecurityInfoResponse {
-    constructor(alarm, sensors) {
-        this.alarm = alarm
-        this.sensors = sensors
+export class ResponseData {
+    constructor(name, value) {
+        this.name = name
+        this.value = value
     }
 }

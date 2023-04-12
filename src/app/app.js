@@ -10,33 +10,99 @@
 
 import { server } from "../server/server.js"
 import { menu } from "./menu.js"
+import { db } from "../database/db.js"
+import { ctrlType } from "../controllers/controller.js"
+import { log, logMod } from "../utils/log.js"
 
 class Application {
-    #ctrls = []
+    #socket = []
+    #watering = []
+    #wtrtank = []
+    #security = []
 
-    addController(ctrl) {
-        this.#ctrls.push(ctrl)
-    }
+    getControllers(type) {
+        switch (type) {
+            case ctrlType.SOCKET:
+                return this.#socket
 
-    getControllers() {
-        return this.#ctrls
-    }
+            case ctrlType.WATERING:
+                return this.#watering
 
-    getController(name) {
-        for (let ctrl of this.#ctrls) {
-            if (ctrl.name == name)
-                return ctrl
+            case ctrlType.WATER_TANK:
+                return this.#wtrtank
+
+            case ctrlType.SECURITY:
+                return this.#security
         }
     }
 
+    addController(type, ctrl) {
+        switch (type) {
+            case ctrlType.SOCKET:
+                this.#socket.push(ctrl)
+                break
+
+            case ctrlType.WATERING:
+                this.#watering.push(ctrl)
+                break
+
+            case ctrlType.WATER_TANK:
+                this.#wtrtank.push(ctrl)
+                break
+
+            case ctrlType.SECURITY:
+                this.#security.push(ctrl)
+                break
+        }
+    }
+
+    getController(type, name) {
+        const ctrls = this.getControllers(type)
+        if (!ctrls) {
+            return undefined
+        }
+
+        for (const ctrl of ctrls) {
+            if (ctrl.name == name)
+                return ctrl
+        }
+
+        return undefined
+    }
+
     start() {
-        for (let ctrl of this.#ctrls) {
+        log.info(logMod.APP, "Starting Socket controllers")
+        for (const ctrl of this.getControllers(ctrlType.SOCKET)) {
             if (!ctrl.start())
                 return false
         }
 
-        server.start()
+        log.info(logMod.APP, "Starting Watering controllers")
+        for (const ctrl of this.getControllers(ctrlType.WATERING)) {
+            if (!ctrl.start())
+                return false
+        }
+
+        log.info(logMod.APP, "Starting WaterTank controllers")
+        for (const ctrl of this.getControllers(ctrlType.WATER_TANK)) {
+            if (!ctrl.start())
+                return false
+        }
+
+        log.info(logMod.APP, "Starting Security controllers")
+        for (const ctrl of this.getControllers(ctrlType.SECURITY)) {
+            if (!ctrl.start())
+                return false
+        }
+
+        log.info(logMod.APP, "Starting Database")
+        //db.connect()
+
+        log.info(logMod.APP, "Starting Menu")
         menu.start()
+
+        log.info(logMod.APP, "Starting API server")
+        server.start()
 
         return true
     }

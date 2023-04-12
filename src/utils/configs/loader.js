@@ -13,7 +13,7 @@ import { secPins } from "../../controllers/security/securityctrl.js"
 import { tankPins } from "../../controllers/watertank/watertankctrl.js"
 import { WaterLevel } from "../../controllers/watertank/waterlvl.js"
 import { Socket } from "../../controllers/socket/socket.js"
-import { WateringZone } from "../../controllers/watering/wateringzone.js"
+import { wateringTime, wateringPins } from "../../controllers/watering/wateringctrl.js"
 import { log, logMod } from "../log.js"
 
 export class ConfigsLoader {
@@ -25,12 +25,12 @@ export class ConfigsLoader {
     loadSecurity() {
         log.info(logMod.CONFIGS_LOADER, "Add Security controller")
 
-        this.ctrl.setPin(secPins.ALARM_LED, this.data.security.pins.alarm.led)
-        this.ctrl.setPin(secPins.ALARM_BUZZER, this.data.security.pins.alarm.buzzer)
-        this.ctrl.setPin(secPins.ALARM_RELAY, this.data.security.pins.alarm.relay)
-        this.ctrl.setPin(secPins.KEY_READER, this.data.security.pins.key)
+        this.ctrl.setPin(secPins.STATUS_LED, this.data.pins.status)
+        this.ctrl.setPin(secPins.ALARM_LED, this.data.pins.alarm)
+        this.ctrl.setPin(secPins.ALARM_BUZZER, this.data.pins.buzzer)
+        this.ctrl.setPin(secPins.ALARM_RELAY, this.data.pins.relay)
 
-        for (let sens of this.data.security.sensors) {
+        for (let sens of this.data.sensors) {
             let type = secSensorType.REED_SWITCH
 
             switch (sens.type) {
@@ -64,7 +64,7 @@ export class ConfigsLoader {
     loadSocket() {
         log.info(logMod.CONFIGS_LOADER, "Add Socket controller")
 
-        for (let sock of this.data.socket.sockets) {
+        for (let sock of this.data.sockets) {
             if (this.ctrl.addSocket(new Socket(sock.name, sock.relay, sock.button))) {
                 log.info(logMod.CONFIGS_LOADER, "Add socket Name: " + sock.name + " Relay: " + sock.relay + " Button: " + sock.button)
             } else {
@@ -78,11 +78,11 @@ export class ConfigsLoader {
 
     loadWatering() {
         log.info(logMod.CONFIGS_LOADER, "Add Watering controller")
-
-        for (let zone of this.data.watering.zones) {
-            this.ctrl.addZone(new WateringZone(zone.name, zone.pin))
-            log.info(logMod.CONFIGS_LOADER, "Add watering zone Name: " + zone.name + " Pin: " + zone.pin)
-        }
+        
+        this.ctrl.setPin(wateringPins.STATUS, this.data.pins.status)
+        this.ctrl.setPin(wateringPins.RELAY, this.data.pins.relay)
+        this.ctrl.setTime(wateringTime.ON, this.data.on)
+        this.ctrl.setTime(wateringTime.OFF, this.data.off)
 
         return true
     }
@@ -90,10 +90,10 @@ export class ConfigsLoader {
     loadWaterTank() {
         log.info(logMod.CONFIGS_LOADER, "Add WaterTank controller")
 
-        this.ctrl.setPin(tankPins.PUMP_RELAY, this.data.watertank.pins.pump)
-        this.ctrl.setPin(tankPins.FILL_RELAY, this.data.watertank.pins.fill)
+        this.ctrl.setPin(tankPins.PUMP_RELAY, this.data.pins.pump)
+        this.ctrl.setPin(tankPins.FILL_RELAY, this.data.pins.fill)
 
-        for (let level of this.data.watertank.levels) {
+        for (let level of this.data.levels) {
             this.ctrl.addLevel(new WaterLevel(level.name, level.pin))
             log.info(logMod.CONFIGS_LOADER, "Add water level Name: " + level.name + " Pin: " + level.pin)
         }

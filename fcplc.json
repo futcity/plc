@@ -37,6 +37,12 @@
         "port": 8000
     },
 
+    "database": {
+        "ip": "127.0.0.1",
+        "user": "test",
+        "pass": "test"
+    },
+
     "menu": {
         "lcd": {
             "base": 800,
@@ -49,11 +55,10 @@
         }
     },
     
-    "controllers": [
-        { 
-            "name": "rack",
-            "type": "socket",
-            "socket": {
+    "controllers": {
+        "socket": [
+            { 
+                "name": "rack",
                 "sockets": [
                     { "name": "switch1", "relay": "int-relay10-1", "button": "int-opto-1" },
                     { "name": "switch2", "relay": "int-relay10-2", "button": "int-opto-2" },
@@ -61,11 +66,10 @@
                     { "name": "switch4", "relay": "int-relay10-4", "button": "int-opto-4" }
                 ]
             }
-        },
-        {
-            "name": "tank",
-            "type": "watertank",
-            "watertank": {
+        ],
+        "tank": [
+            {
+                "name": "tank",
                 "pins": {
                     "pump": "int-relay16-1",
                     "fill": ""
@@ -76,31 +80,31 @@
                     { "name": "high",   "pin": "int-opto-7" }
                 ]
             }
-        },
-        {
-            "name": "flowers",
-            "type": "watering",
-            "watering": {
-                "zones": [
-                    { "name": "zone1", "pin": "int-relay16-2", "on": "16:00", "off": "16:30" }
-                ]
-            }
-        },
-        {
-            "name": "table",
-            "type": "security",
-            "security": {
+        ],
+        "watering": [
+            {
+                "name": "flowers",
                 "pins": {
-                    "alarm": {
-                        "led": "cpu-alarm",
-                        "buzzer": "int-relay5",
-                        "relay": ""
-                    }
+                    "status": "cpu-sts-1",
+                    "relay": "int-relay16-2"
+                },
+                "on": "16:00",
+                "off": "16:30"
+            }
+        ],
+        "security": [
+            {
+                "name": "table",
+                "pins": {
+                    "status": "cpu-sts-2",
+                    "alarm": "cpu-alarm",
+                    "buzzer": "int-relay5",
+                    "relay": ""
                 },
                 "sensors": [
-                    { "name": "table", "type": "microwave", "pin": "int-opto-8", "alarm": true }
+                    { "name": "box", "type": "reedswitch", "pin": "int-opto-8", "alarm": "true" }
                 ]
             }
-        }
-    ]
+        ]
+    }
 }

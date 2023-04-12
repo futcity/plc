@@ -9,19 +9,18 @@
 /*********************************************************************/
 
 export const ctrlType = {
-    SOCKET:     "socket",
-    SECURITY:   "security",
-    WATER_TANK: "watertank",
-    WATERING:   "watering"
+    SOCKET:     0,
+    SECURITY:   1,
+    WATER_TANK: 2,
+    WATERING:   3
 }
 
 export class Controller {
     #pins = new Map()
     #status = false
 
-    constructor(name, type) {
+    constructor(name) {
         this.name = name
-        this.type = type
     }
 
     setPin(id, pin) {

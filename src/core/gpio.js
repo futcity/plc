@@ -22,7 +22,7 @@ export const gpioMode = {
 
 export const gpioPullType = {
     DOWN:   0,
-    HIGH:   1,
+    UP:     1,
     NONE:   2
 }
 

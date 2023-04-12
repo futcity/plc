@@ -20,10 +20,11 @@ import { WateringController } from "../../controllers/watering/wateringctrl.js"
 import { SecurityController } from "../../controllers/security/securityctrl.js"
 import { ConfigsLoader } from "./loader.js"
 import { menu } from "../../app/menu.js"
+import { db } from "../../database/db.js"
 
 class Configs {
     load(path) {
-        let data = this.#loadFromFile(path)
+        const data = this.#loadFromFile(path)
 
         if (!this.#loadExtenders(data)) {
             log.error(logMod.CONFIGS, "Failed to load Extenders")
@@ -46,17 +47,22 @@ class Configs {
             log.error(logMod.CONFIGS, "Failed to init menu")
             return false
         }
+
+        if (!this.#loadDatabase(data)) {
+            log.error(logMod.CONFIGS, "Failed to init database")
+            return false
+        }
         
         return true
     }
 
     #loadFromFile(fileName) {
-        let rawData = readFileSync(fileName)
+        const rawData = readFileSync(fileName)
         return JSON.parse(rawData.toString())
     }
 
     #loadExtenders(data) {
-        for (let ext of data.extenders) {
+        for (const ext of data.extenders) {
             if (ext.enabled) {
                 let type = gpioExtType.MCP23017
 
@@ -86,7 +92,7 @@ class Configs {
     }
 
     #loadGpio(data) {
-        for (let pin of data.gpio) {
+        for (const pin of data.gpio) {
             let mode = gpioMode.OUTPUT
             let pull = gpioPullType.NONE
 
@@ -133,6 +139,8 @@ class Configs {
     }
 
     #loadMenu(data) {
+        log.info(logMod.CONFIGS, "Loading menu")
+
         if (!menu.initLCD(data.menu.lcd.base, data.menu.lcd.addr)) {
             log.error(logMod.CONFIGS, "Failed to init menu LCD")
             return false
@@ -144,65 +152,73 @@ class Configs {
     }
 
     #loadControllers(data) {
-        for (let ctrl of data.controllers) {
-            switch (ctrl.type) {
-                case ctrlType.SOCKET:
-                    {
-                        let controller = new SocketController(ctrl.name, ctrl.type)
-                        let loader = new ConfigsLoader(ctrl, controller)
-                        if (loader.loadSocket()) {
-                            app.addController(controller)
-                        } else {
-                            log.error(logMod.CONFIGS, "Failed to load socket controller: " + ctrl.name)
-                            return false
-                        }
-                    }
-                    break
+        if (data.controllers.socket.length > 0)
+            log.info(logMod.CONFIGS, "Loading socket controllers")
+        
+        for (const ctrl of data.controllers.socket) {
+            const controller = new SocketController(ctrl.name)
+            const loader = new ConfigsLoader(ctrl, controller)
 
-                case ctrlType.WATER_TANK:
-                    {
-                        let controller = new WaterTankController(ctrl.name, ctrl.type)
-                        let loader = new ConfigsLoader(ctrl, controller)
-                        if (loader.loadWaterTank()) {
-                            app.addController(controller)
-                        } else {
-                            log.error(logMod.CONFIGS, "Failed to load water tank controller: " + ctrl.name)
-                            return false
-                        }
-                    }
-                    break
-
-                case ctrlType.WATERING:
-                    {    
-                        let controller = new WateringController(ctrl.name, ctrl.type)
-                        let loader = new ConfigsLoader(ctrl, controller)
-                        if (loader.loadWatering()) {
-                            app.addController(controller)
-                        } else {
-                            log.error(logMod.CONFIGS, "Failed to load watering controller: " + ctrl.name)
-                            return false
-                        }
-                    }
-                    break
-
-                case ctrlType.SECURITY:
-                    {
-                        let controller = new SecurityController(ctrl.name, ctrl.type)
-                        let loader = new ConfigsLoader(ctrl, controller)
-                        if (loader.loadSecurity()) {
-                            app.addController(controller)
-                        } else {
-                            log.error(logMod.CONFIGS, "Failed to load security controller: " + ctrl.name)
-                            return false
-                        }
-                    }
-                    break
-
-                default:
-                    log.error(logMod.CONFIGS, "Unknown controller type: " + ctrl.type)
-                    return false
+            if (loader.loadSocket()) {
+                app.addController(ctrlType.SOCKET, controller)
+            } else {
+                log.error(logMod.CONFIGS, "Failed to load socket controller: " + ctrl.name)
+                return false
             }
         }
+
+        if (data.controllers.watering.length > 0)
+            log.info(logMod.CONFIGS, "Loading watering controllers")
+
+        for (const ctrl of data.controllers.watering) {
+            const controller = new WateringController(ctrl.name)
+            const loader = new ConfigsLoader(ctrl, controller)
+
+            if (loader.loadWatering()) {
+                app.addController(ctrlType.WATERING, controller)
+            } else {
+                log.error(logMod.CONFIGS, "Failed to load watering controller: " + ctrl.name)
+                return false
+            }
+        }
+
+        if (data.controllers.tank.length > 0)
+            log.info(logMod.CONFIGS, "Loading tank controllers")
+
+        for (const ctrl of data.controllers.tank) {
+            const controller = new WaterTankController(ctrl.name)
+            const loader = new ConfigsLoader(ctrl, controller)
+
+            if (loader.loadWaterTank()) {
+                app.addController(ctrlType.WATER_TANK, controller)
+            } else {
+                log.error(logMod.CONFIGS, "Failed to load water tank controller: " + ctrl.name)
+                return false
+            }
+        }
+
+        log.info(logMod.CONFIGS, "Loading security controllers")
+
+        for (const ctrl of data.controllers.security) {
+            const controller = new SecurityController(ctrl.name)
+            const loader = new ConfigsLoader(ctrl, controller)
+
+            if (loader.loadSecurity()) {
+                app.addController(ctrlType.SECURITY, controller)
+            } else {
+                log.error(logMod.CONFIGS, "Failed to load security controller: " + ctrl.name)
+                return false
+            }
+        }
+
+        return true
+    }
+
+    #loadDatabase(data) {
+        log.info(logMod.CONFIGS, "Loading database")
+
+        db.setCreds(data.database.ip, data.database.user, data.database.pass)
+
         return true
     }
 }
