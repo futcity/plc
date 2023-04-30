@@ -31,10 +31,6 @@ export class Core implements ICore {
     private ext: IExtenders
     private lcd: ILiquidCrystal
 
-    constructor(
-        private readonly log: ILog
-    ) { }
-
     public createBoard() {
         this.board = new Board()
     }

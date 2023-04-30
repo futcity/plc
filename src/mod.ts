@@ -22,7 +22,7 @@ import { ILiquidCrystal } from "./core/lcd"
 
 export interface IModules {
     createUtils(): IUtils
-    createCore(log: ILog): ICore
+    createCore(): ICore
     createWebHandlers(log: ILog, ctrls: IControllers, api: ApiVer): IWebHandlers
     createNetwork(log: ILog, ctrls: IControllers): INetwork
     createControllers(log: ILog, gpio: IGpio, db: IDB): IControllers
@@ -43,8 +43,8 @@ export class Modules implements IModules {
         return new Utils()
     }
 
-    public createCore(log: ILog): ICore {
-        return new Core(log)
+    public createCore(): ICore {
+        return new Core()
     }
 
     public createNetwork(log: ILog, ctrls: IControllers): INetwork {

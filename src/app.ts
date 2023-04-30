@@ -112,7 +112,7 @@ export class App {
     }
 
     private buildCore() {
-        this.core = this.mod.createCore(this.utils.getLog())
+        this.core = this.mod.createCore()
         this.core.createBoard()
         this.core.createExtenders()
         this.core.createGpio()
