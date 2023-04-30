@@ -41,7 +41,7 @@ export class GpioPin implements IGpioPin {
 
     constructor(
         private readonly board: IBoard,
-        private pin: number
+        private readonly pin: number
     ) { }
 
     public getMode(): GpioMode {

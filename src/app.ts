@@ -178,6 +178,7 @@ export class App {
     }
 
     private loadConfigsAll(path: string): boolean {
+        let devData: any
         let boardData: any
         let mainData: any
         let ctrlData: any
@@ -186,11 +187,24 @@ export class App {
         log.info(Mod.APP, "Starting application")
 
         /**
+         * Reading device factory
+         */
+
+        log.info(Mod.APP, `Loading board factory`)
+        try {
+            devData = this.utils.getConfigs().loadFromFile(path + "device.json")
+        } catch (err: any) {
+            log.error(Mod.APP, "Failed to load board factory", err.message)
+            return false
+        }
+        log.info(Mod.APP, `Board "${devData.name}-${devData.revision}" detected`)
+
+        /**
          * Reading configs file
          */
 
         try {
-            boardData = this.utils.getConfigs().loadFromFile(path + "board.json")
+            boardData = this.utils.getConfigs().loadFromFile(`${path}board/${devData.name}-${devData.revision}.json`)
             mainData = this.utils.getConfigs().loadFromFile(path + "main.json")
             ctrlData = this.utils.getConfigs().loadFromFile(path + "controllers.json")
         } catch (err: any) {

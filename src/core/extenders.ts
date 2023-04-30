@@ -40,24 +40,6 @@ export class Extenders implements IExtenders {
 
     public addExtender(name: string, type: ExtType, base: number, addr: number): void {
         const ext = new Extender(type, base, addr)
-
-        switch (type) {
-            case ExtType.MCP23017:
-                if (!this.board.initMCP23017(base, addr))
-                    throw new Error(`Failed to init MCP23017 extender "${name}"`)
-                break
-
-            case ExtType.PCF8574:
-                if (!this.board.initPCF8574(base, addr))
-                    throw new Error(`Failed to init PCF8574 extender "${name}"`)
-                break
-
-            case ExtType.ADS1115:
-                if (!this.board.initADS1115(base, addr))
-                    throw new Error(`Failed to init ADS1115 extender "${name}"`)
-                break
-        }
-
         this.ext.set(name, ext)
     }
 }
