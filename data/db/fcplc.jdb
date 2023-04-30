@@ -1,0 +1,18 @@
+{
+    "socket": {
+        "rack": {
+            "socket1": {
+                "state": false
+            },
+            "socket2": {
+                "state": false
+            },
+            "socket3": {
+                "state": false
+            },
+            "socket4": {
+                "state": false
+            }
+        }
+    }
+}

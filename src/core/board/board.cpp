@@ -13,6 +13,7 @@
 #include <mcp23017.h>
 #include <pcf8574.h>
 #include <lcd.h>
+#include <ads1115.h>
 
 #define LCD_INIT_RETRIES    3
 #define LCD_ROWS            2
@@ -29,9 +30,11 @@ public:
             InstanceMethod("setPinMode", &Board::setPinMode),
             InstanceMethod("setPinState", &Board::setPinState),
             InstanceMethod("getPinState", &Board::getPinState),
+            InstanceMethod("getPinAnalogState", &Board::getPinAnalogState),
             InstanceMethod("setPinPull", &Board::setPinPull),
             InstanceMethod("initMCP23017", &Board::initMCP23017),
             InstanceMethod("initPCF8574", &Board::initPCF8574),
+            InstanceMethod("initADS1115", &Board::initADS1115),
             InstanceMethod("initLCD1602", &Board::initLCD1602),
             InstanceMethod("clearLCD1602", &Board::clearLCD1602),
             InstanceMethod("homeLCD1602", &Board::homeLCD1602),
@@ -83,6 +86,13 @@ public:
         return Napi::Number::New(info.Env(), digitalRead(pin));
     }
 
+    Napi::Value getPinAnalogState(const Napi::CallbackInfo& info)
+    {
+        int pin = info[0].ToNumber().Int32Value();
+
+        return Napi::Number::New(info.Env(), analogRead(pin));
+    }
+
     Napi::Value initMCP23017(const Napi::CallbackInfo& info)
     {
         int base = info[0].ToNumber().Int32Value();
@@ -101,29 +111,23 @@ public:
 
     Napi::Value initLCD1602(const Napi::CallbackInfo& info)
     {
-        int base = info[0].ToNumber().Int32Value();
-        int addr = info[1].ToNumber().Int32Value();
+        int rs = info[0].ToNumber().Int32Value();
+        int rw = info[1].ToNumber().Int32Value();
+        int e =  info[2].ToNumber().Int32Value();
+        int k =  info[3].ToNumber().Int32Value();
+        int d4 = info[4].ToNumber().Int32Value();
+        int d5 = info[5].ToNumber().Int32Value();
+        int d6 = info[6].ToNumber().Int32Value();
+        int d7 = info[7].ToNumber().Int32Value();
 
-        int RS = base + 0;
-        int RW = base + 1;
-        int E = base + 2;
-        int K = base + 3;
-        int D4 = base + 4;
-        int D5 = base + 5;
-        int D6 = base + 6;
-        int D7 = base + 7;
-
-        if (!pcf8574Setup(base, addr))
-            return Napi::Number::New(info.Env(), 0);
-
-        pinMode(RW, OUTPUT);
-        digitalWrite(RW, LOW);
-        pinMode(K, OUTPUT);
-        digitalWrite(K, HIGH);
+        pinMode(rw, OUTPUT);
+        digitalWrite(rw, LOW);
+        pinMode(k, OUTPUT);
+        digitalWrite(k, HIGH);
 
         for (int i = 0; i < LCD_INIT_RETRIES; i++)
         {
-            this->fdLCD = lcdInit(LCD_ROWS, LCD_COLS, LCD_BITS, RS, E, D4, D5, D6, D7, 0, 0, 0, 0);
+            this->fdLCD = lcdInit(LCD_ROWS, LCD_COLS, LCD_BITS, rs, e, d4, d5, d6, d7, 0, 0, 0, 0);
             if (this->fdLCD != 0)
                 break;
             delay(100);
@@ -176,6 +180,14 @@ public:
         lcdPuts(this->fdLCD, info[0].ToString().Utf8Value().c_str());
 
         return Napi::Number::New(info.Env(), 1);
+    }
+
+    Napi::Value initADS1115(const Napi::CallbackInfo& info)
+    {
+        int base = info[0].ToNumber().Int32Value();
+        int addr = info[1].ToNumber().Int32Value();
+
+        return Napi::Number::New(info.Env(), ads1115Setup(base, addr));
     }
 };
 

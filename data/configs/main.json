@@ -1,0 +1,11 @@
+{
+    "server": {
+        "port": 8080
+    },
+
+    "db": {
+        "type": "jdb",
+        "jdb": { "file": "./data/db/fcplc.jdb" },
+        "mongo": { "ip": "", "user": "", "pass": "" }
+    }
+}
