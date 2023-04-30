@@ -1,0 +1,14 @@
+{
+    "controllers": [
+        {
+            "name": "rack",
+            "type": "socket",
+            "sockets": [
+                { "name": "socket1", "pins": { "relay": "ext-rly10-1", "button": "ext-opto-1" } },
+                { "name": "socket2", "pins": { "relay": "ext-rly10-2", "button": "ext-opto-2" } },
+                { "name": "socket3", "pins": { "relay": "ext-rly10-3", "button": "ext-opto-3" } },
+                { "name": "socket4", "pins": { "relay": "ext-rly10-4", "button": "ext-opto-4" } }
+            ]
+        }
+    ]
+}
