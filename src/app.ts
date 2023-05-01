@@ -117,6 +117,7 @@ export class App {
         this.core.createExtenders()
         this.core.createGpio()
         this.core.createLiquidCrystal()
+        this.core.createOneWire()
     }
 
     private buildControllers() {

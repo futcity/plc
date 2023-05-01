@@ -8,13 +8,14 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { ILog } from "../utils/log"
 import { Board, IBoard } from "./board/board"
 import { Extenders, IExtenders } from "./extenders"
 import { Gpio, IGpio } from "./gpio"
 import { ILiquidCrystal, LiquidCrystal } from "./lcd"
+import { IOneWire, OneWire } from "./onewire"
 
 export interface ICore {
+    createOneWire(): void
     createBoard(): void
     createGpio(): void
     createExtenders(): void
@@ -23,6 +24,7 @@ export interface ICore {
     getExtenders(): IExtenders
     getBoard(): IBoard
     getGpio(): IGpio
+    getOneWire(): IOneWire
 }
 
 export class Core implements ICore {
@@ -30,6 +32,11 @@ export class Core implements ICore {
     private gpio: IGpio
     private ext: IExtenders
     private lcd: ILiquidCrystal
+    private ow: IOneWire
+
+    public createOneWire() {
+        this.ow = new OneWire()
+    }
 
     public createBoard() {
         this.board = new Board()
@@ -45,6 +52,10 @@ export class Core implements ICore {
 
     public createLiquidCrystal() {
         this.lcd = new LiquidCrystal(this.board)
+    }
+
+    public getOneWire(): IOneWire {
+        return this.ow
     }
 
     public getLiquidCrystal(): ILiquidCrystal {
