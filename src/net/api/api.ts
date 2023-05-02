@@ -17,7 +17,8 @@ export enum ApiVer {
 export enum ApiRoutesV1 {
     API_ROUTE_INDEX_INFO        = "/",
     API_ROUTE_SOCKET_INFO       = "/api/v1/socket",
-    API_ROUTE_SOCKET_SWITCH     = "/api/v1/socket/switch"
+    API_ROUTE_SOCKET_SWITCH     = "/api/v1/socket/switch",
+    API_ROUTE_METEO_INFO        = "/api/v1/meteo",
 }
 
 export interface IApi {

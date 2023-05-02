@@ -16,7 +16,7 @@ import { WebHandlers, IWebHandlers } from "./api/handlers"
 import { IWebServer, WebServer } from "./server"
 
 export interface INetwork {
-    createWebHandlers(api: ApiVer): void
+    createWebHandlers(): void
     createWebServer(): void
     getServer(): IWebServer
     getHandlers(): IWebHandlers
@@ -32,14 +32,11 @@ export class Network implements INetwork {
         private readonly mod: IModules
     ) { }
 
-    public createWebHandlers(api: ApiVer): void {
+    public createWebHandlers(): void {
         this.handlers = this.mod.createWebHandlers(
             this.log,
-            this.ctrls,
-            api
+            this.ctrls
         )
-        this.handlers.createIndex()
-        this.handlers.createSocket()
     }
 
     public createWebServer(): void {

@@ -21,9 +21,6 @@ import { IUtils } from "./utils/utils"
 
 export class App {
     private static instanse: App
-
-    private readonly api: ApiVer = ApiVer.V1
-
     private utils: IUtils
     private core: ICore
     private ctrls: IControllers
@@ -133,7 +130,7 @@ export class App {
             this.utils.getLog(),
             this.ctrls
         )
-        this.net.createWebHandlers(this.api)
+        this.net.createWebHandlers()
         this.net.createWebServer()
     }
 
@@ -223,6 +220,8 @@ export class App {
         const cfgMain = new MainConfigsParser(
             this.utils.getLog(),
             this.utils.getDB(),
+            this.net.getHandlers(),
+            this.net.getServer(),
             mainData)
 
         const cfgCtrls = new ControllersConfigsParser(
@@ -253,6 +252,7 @@ export class App {
         log.info(Mod.APP, `Loading Database`)
         try {
             cfgMain.parseDatabase()
+            cfgMain.parseServer()
         } catch (err: any) {
             log.error(Mod.APP, `Failed to load Database`, err)
             return false

@@ -27,7 +27,8 @@ export enum Mod {
     APP = "APP",
     DB = "DB",
     LOG = "LOG",
-    METEOCTRL = "METEOCTRL"
+    METEOCTRL = "METEOCTRL",
+    METEOH = "METEOH"
 }
 
 export interface ILog {

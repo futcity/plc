@@ -13,16 +13,17 @@ import { ILog } from "../../utils/log";
 import { SocketApiV1 } from "./v1/controllers/socketapi";
 import { ApiVer, IApi } from "./api";
 import { IndexApi } from "./v1/indexh";
+import { MeteoApiV1 } from "./v1/controllers/meteoapi";
 
 export enum Handlers {
     INDEX,
     SOCKET,
-    SECURITY
+    SECURITY,
+    METEO
 }
 
 export interface IWebHandlers {
-    createIndex(): void
-    createSocket(): void
+    createHandlers(api: ApiVer): void
     getHandler(handler: Handlers): IApi | undefined
     getHandlers(): IApi[]
 }
@@ -32,25 +33,15 @@ export class WebHandlers implements IWebHandlers {
 
     constructor(
         private readonly log: ILog,
-        private readonly ctrls: IControllers,
-        private readonly api: ApiVer
+        private readonly ctrls: IControllers
     ) { }
 
-    public createIndex() {
-        switch (this.api) {
+    public createHandlers(api: ApiVer) {
+        switch (api) {
             case ApiVer.V1:
                 this.handlers.set(Handlers.INDEX, new IndexApi(this.log))
-                break
-
-            default:
-                throw new Error("Unknown API version")
-        }
-    }
-
-    public createSocket() {
-        switch (this.api) {
-            case ApiVer.V1:
                 this.handlers.set(Handlers.SOCKET, new SocketApiV1(this.log, this.ctrls))
+                this.handlers.set(Handlers.METEO, new MeteoApiV1(this.log, this.ctrls))
                 break
 
             default:

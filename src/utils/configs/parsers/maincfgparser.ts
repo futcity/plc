@@ -8,6 +8,8 @@
 /*                                                                   */
 /*********************************************************************/
 
+import { IWebHandlers } from "../../../net/api/handlers"
+import { IWebServer } from "../../../net/server"
 import { IDB } from "../../db/db"
 import { JsonDatabase } from "../../db/jsondb"
 import { MongoDatabase } from "../../db/mongodb"
@@ -17,6 +19,8 @@ export class MainConfigsParser {
     constructor(
         private readonly log: ILog,
         private readonly db: IDB,
+        private readonly hand: IWebHandlers,
+        private readonly server: IWebServer,
         private readonly data: any
     ) { }
 
@@ -51,5 +55,14 @@ export class MainConfigsParser {
             default:
                 throw new Error(`Unknown database type`)
         }
+    }
+
+    public parseServer() {
+        if (!this.data.server) {
+            throw new Error(`Server settings not found`)
+        }
+
+        this.hand.createHandlers(this.data.server.api)
+        this.server.setPort(this.data.server.port)
     }
 }

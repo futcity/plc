@@ -23,7 +23,7 @@ import { ILiquidCrystal } from "./core/lcd"
 export interface IModules {
     createUtils(): IUtils
     createCore(): ICore
-    createWebHandlers(log: ILog, ctrls: IControllers, api: ApiVer): IWebHandlers
+    createWebHandlers(log: ILog, ctrls: IControllers): IWebHandlers
     createNetwork(log: ILog, ctrls: IControllers): INetwork
     createControllers(log: ILog, gpio: IGpio, db: IDB): IControllers
     createFTest(gpio: IGpio, lcd: ILiquidCrystal): FactoryTest
@@ -51,8 +51,8 @@ export class Modules implements IModules {
         return new Network(log, ctrls, this)
     }
 
-    public createWebHandlers(log: ILog, ctrls: IControllers, api: ApiVer): IWebHandlers {
-        return new WebHandlers(log, ctrls, api)
+    public createWebHandlers(log: ILog, ctrls: IControllers): IWebHandlers {
+        return new WebHandlers(log, ctrls)
     }
 
     public createControllers(log: ILog, gpio: IGpio, db: IDB): IControllers {

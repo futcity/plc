@@ -14,6 +14,7 @@ import express, { Express } from "express";
 
 export interface IWebServer {
     registerHandlers(): void
+    setPort(port: number): void
     start(): void
 }
 
@@ -25,6 +26,10 @@ export class WebServer implements IWebServer {
         private readonly log: ILog,
         private readonly handlers: IWebHandlers
     ) {
+    }
+
+    public setPort(port: number): void {
+        this.port = port
     }
 
     public registerHandlers(): void {
