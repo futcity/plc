@@ -1,6 +1,14 @@
 {
     "controllers": [
         {
+            "name": "weather",
+            "type": "meteo",
+            "sensors": [
+                { "name": "room",   "type": "ds18b20", "id": "" },
+                { "name": "street", "type": "ds18b20", "id": "" }
+            ]
+        },
+        {
             "name": "rack",
             "type": "socket",
             "sockets": [
@@ -11,11 +19,18 @@
             ]
         },
         {
-            "name": "temps",
-            "type": "meteo",
+            "name": "table",
+            "type": "security",
+            "pins": {
+                "status": "cpu-sts-2",
+                "buzzer": "int-relay5",
+                "alarm": {
+                    "led": "cpu-alarm",
+                    "relay": ""
+                }
+            },
             "sensors": [
-                { "name": "room",   "type": "ds18b20", "id": "" },
-                { "name": "street", "type": "ds18b20", "id": "" }
+                { "name": "room", "type": "reedswitch", "pin": "ext-opto-8", "alarm": true }
             ]
         }
     ]

@@ -14,6 +14,7 @@ import { SocketApiV1 } from "./v1/controllers/socketapi";
 import { ApiVer, IApi } from "./api";
 import { IndexApi } from "./v1/indexh";
 import { MeteoApiV1 } from "./v1/controllers/meteoapi";
+import { SecurityApiV1 } from "./v1/controllers/securityapi";
 
 export enum Handlers {
     INDEX,
@@ -42,6 +43,7 @@ export class WebHandlers implements IWebHandlers {
                 this.handlers.set(Handlers.INDEX, new IndexApi(this.log))
                 this.handlers.set(Handlers.SOCKET, new SocketApiV1(this.log, this.ctrls))
                 this.handlers.set(Handlers.METEO, new MeteoApiV1(this.log, this.ctrls))
+                this.handlers.set(Handlers.SECURITY, new SecurityApiV1(this.log, this.ctrls))
                 break
 
             default:

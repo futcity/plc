@@ -22,8 +22,8 @@ export interface IController {
 
 export class Controller implements IController {
     constructor(
-        private type: CtrlType,
-        private name: string
+        private readonly type: CtrlType,
+        private readonly name: string
     ) { }
 
     public start(): boolean {

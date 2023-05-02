@@ -11,8 +11,7 @@
 import { IControllers } from "../controllers/controllers"
 import { IModules } from "../mod"
 import { ILog } from "../utils/log"
-import { ApiVer } from "./api/api"
-import { WebHandlers, IWebHandlers } from "./api/handlers"
+import { IWebHandlers } from "./api/handlers"
 import { IWebServer, WebServer } from "./server"
 
 export interface INetwork {

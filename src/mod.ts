@@ -19,13 +19,14 @@ import { IGpio } from "./core/gpio"
 import { IDB } from "./utils/db/db"
 import { FactoryTest } from "./ftest/ftest"
 import { ILiquidCrystal } from "./core/lcd"
+import { IOneWire } from "./core/onewire"
 
 export interface IModules {
     createUtils(): IUtils
     createCore(): ICore
     createWebHandlers(log: ILog, ctrls: IControllers): IWebHandlers
     createNetwork(log: ILog, ctrls: IControllers): INetwork
-    createControllers(log: ILog, gpio: IGpio, db: IDB): IControllers
+    createControllers(log: ILog, gpio: IGpio, db: IDB, ow: IOneWire): IControllers
     createFTest(gpio: IGpio, lcd: ILiquidCrystal): FactoryTest
 }
 
@@ -55,8 +56,8 @@ export class Modules implements IModules {
         return new WebHandlers(log, ctrls)
     }
 
-    public createControllers(log: ILog, gpio: IGpio, db: IDB): IControllers {
-        return new Controllers(log, gpio, db)
+    public createControllers(log: ILog, gpio: IGpio, db: IDB, ow: IOneWire): IControllers {
+        return new Controllers(log, gpio, db, ow)
     }
 
     public createFTest(gpio: IGpio, lcd: ILiquidCrystal): FactoryTest {

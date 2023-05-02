@@ -121,7 +121,8 @@ export class App {
         this.ctrls = this.mod.createControllers(
             this.utils.getLog(),
             this.core.getGpio(),
-            this.utils.getDB()
+            this.utils.getDB(),
+            this.core.getOneWire()
         )
     }
 
@@ -229,6 +230,7 @@ export class App {
             this.utils.getDB(),
             this.ctrls,
             this.core.getOneWire(),
+            this.core.getGpio(),
             ctrlData)
 
         /**
