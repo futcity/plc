@@ -105,7 +105,7 @@ export class BoardConfigsParser {
         }
 
         for (const lcd of this.data.lcd) {
-            this.lcd.addDisplay(lcd.name,
+            if (!this.lcd.addDisplay(lcd.name,
                 lcd.pins.rs,
                 lcd.pins.rw,
                 lcd.pins.e,
@@ -114,7 +114,10 @@ export class BoardConfigsParser {
                 lcd.pins.d5,
                 lcd.pins.d6,
                 lcd.pins.d7
-            )
+            )) {
+                throw new Error(`Failed to init display "${lcd.name}"`)
+            }
+
             this.log.info(Mod.APP, `Add display "${lcd.name}"`)
         }
     }

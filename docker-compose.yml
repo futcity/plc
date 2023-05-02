@@ -10,9 +10,9 @@ services:
         restart: always
         network_mode: bridge
         environment:
-            BUILD: ${BUILD}
             FTEST: ${FTEST}
         volumes:
           - /dev/mem:/dev/mem
           - /proc/cpuinfo:/proc/cpuinfo
-          - ./:/usr/src/app/
+          - /sys/bus/w1/devices/:/sys/bus/w1/devices/
+          - ./data:/usr/src/app/data/

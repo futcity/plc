@@ -13,8 +13,13 @@ RUN apt -y update && \
 	git clone https://github.com/orangepi-xunlong/wiringOP.git && \
 	cd wiringOP && \
 	echo "BOARD=orangepi-r1" > /etc/armbian-release && \
-	bash build
+	bash build && \
+	npm install -g typescript
 
 ENV TZ=Asia/Novosibirsk
+
+COPY . .
+
+RUN npm install && tsc
 
 CMD [ "./start.sh" ]

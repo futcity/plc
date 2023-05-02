@@ -22,11 +22,11 @@
             "name": "table",
             "type": "security",
             "pins": {
-                "status": "cpu-sts-2",
+                "status": "cpu-led-sts1",
                 "buzzer": "int-relay5",
                 "alarm": {
-                    "led": "cpu-alarm",
-                    "relay": ""
+                    "led": "cpu-led-alrm",
+                    "relay": "ext-rly16-1"
                 }
             },
             "sensors": [

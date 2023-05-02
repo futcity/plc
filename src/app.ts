@@ -81,7 +81,7 @@ export class App {
          * Loading configs
          */
 
-        if (this.loadTestConfigs("./data/configs/")) {
+        if (this.loadBoardConfigs("./data/configs/")) {
             log.info(Mod.APP, "Configs was loaded")
         } else {
             process.exit(-1)
@@ -135,18 +135,32 @@ export class App {
         this.net.createWebServer()
     }
 
-    private loadTestConfigs(path: string): boolean {
+    private loadBoardConfigs(path: string): boolean {
+        let devData: any
         let boardData: any
         const log = this.utils.getLog()
 
         log.info(Mod.APP, "Starting application")
 
         /**
+         * Reading device factory
+         */
+
+        log.info(Mod.APP, `Loading board factory`)
+        try {
+            devData = this.utils.getConfigs().loadFromFile(path + "device.json")
+        } catch (err: any) {
+            log.error(Mod.APP, "Failed to load board factory", err.message)
+            return false
+        }
+        log.info(Mod.APP, `Board "${devData.name}-${devData.revision}" detected`)
+
+        /**
          * Reading configs file
          */
 
         try {
-            boardData = this.utils.getConfigs().loadFromFile(path + "board.json")
+            boardData = this.utils.getConfigs().loadFromFile(`${path}board/${devData.name}-${devData.revision}.json`)
         } catch (err: any) {
             log.error(Mod.APP, "Failed to load configs", err.message)
             return false
@@ -177,8 +191,6 @@ export class App {
     }
 
     private loadConfigsAll(path: string): boolean {
-        let devData: any
-        let boardData: any
         let mainData: any
         let ctrlData: any
         const log = this.utils.getLog()
@@ -186,37 +198,23 @@ export class App {
         log.info(Mod.APP, "Starting application")
 
         /**
-         * Reading device factory
+         * Loading board configs
          */
 
-        log.info(Mod.APP, `Loading board factory`)
-        try {
-            devData = this.utils.getConfigs().loadFromFile(path + "device.json")
-        } catch (err: any) {
-            log.error(Mod.APP, "Failed to load board factory", err.message)
+        if (!this.loadBoardConfigs(path))
             return false
-        }
-        log.info(Mod.APP, `Board "${devData.name}-${devData.revision}" detected`)
 
         /**
          * Reading configs file
          */
 
         try {
-            boardData = this.utils.getConfigs().loadFromFile(`${path}board/${devData.name}-${devData.revision}.json`)
             mainData = this.utils.getConfigs().loadFromFile(path + "main.json")
             ctrlData = this.utils.getConfigs().loadFromFile(path + "controllers.json")
         } catch (err: any) {
             log.error(Mod.APP, "Failed to load configs", err.message)
             return false
         }
-
-        const cfgBoard = new BoardConfigsParser(
-            this.utils.getLog(),
-            this.core.getGpio(),
-            this.core.getExtenders(),
-            this.core.getLiquidCrystal(),
-            boardData)
 
         const cfgMain = new MainConfigsParser(
             this.utils.getLog(),
@@ -232,20 +230,6 @@ export class App {
             this.core.getOneWire(),
             this.core.getGpio(),
             ctrlData)
-
-        /**
-         * Loading board configs
-         */
-
-        log.info(Mod.APP, "Loading board configs")
-        try {
-            cfgBoard.parseExtenders()
-            cfgBoard.parseGpio()
-            cfgBoard.parseDisplays()
-        } catch (err: any) {
-            log.error(Mod.APP, `Failed to load board configs`, <string>err.message)
-            return false
-        }
 
         /**
          * Loading main configs

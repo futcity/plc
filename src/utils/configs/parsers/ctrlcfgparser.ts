@@ -150,7 +150,7 @@ export class ControllersConfigsParser {
         try {
             status = <boolean>this.db.curDB().select(CtrlType.SECURITY, ctrl.name, "global", "status")
         } catch (err: any) {
-            this.db.curDB().insert(CtrlType.SOCKET, ctrl.name, "global", "status", status)
+            this.db.curDB().insert(CtrlType.SECURITY, ctrl.name, "global", "status", status)
             this.db.curDB().save()
         }
 

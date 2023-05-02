@@ -62,7 +62,7 @@ export class LCDModule implements ILCDModule {
 }
 
 export interface ILiquidCrystal {
-    addDisplay(name: string, rs: number, rw: number, e: number, k: number, d4: number, d5: number, d6: number, d7: number): void
+    addDisplay(name: string, rs: number, rw: number, e: number, k: number, d4: number, d5: number, d6: number, d7: number): boolean
     getDisplay(name: string): ILCDModule | undefined
     getDisplays(): Map<string, ILCDModule>
 }
@@ -74,8 +74,14 @@ export class LiquidCrystal implements ILiquidCrystal {
         private readonly board: IBoard
     ) { }
 
-    public addDisplay(name: string, rs: number, rw: number, e: number, k: number, d4: number, d5: number, d6: number, d7: number) {
-        this.displays.set(name, new LCDModule(this.board, rs, rw, e, k, d4, d5, d6, d7))
+    public addDisplay(name: string, rs: number, rw: number, e: number, k: number, d4: number, d5: number, d6: number, d7: number): boolean {
+        const lcd = new LCDModule(this.board, rs, rw, e, k, d4, d5, d6, d7)
+
+        if (!lcd.init())
+            return false
+        this.displays.set(name, lcd)
+
+        return true
     }
 
     public getDisplay(name: string): ILCDModule | undefined {
