@@ -27,9 +27,9 @@ export class Socket implements ISocket {
         private readonly gpio: IGpio,
         private readonly db: IDB,
         private readonly ctrlName: string,
-        private name: string,
-        private relay: string,
-        private button: string
+        private readonly name: string,
+        private readonly relay: string,
+        private readonly button: string
     ) { }
 
     public readButton(): boolean {

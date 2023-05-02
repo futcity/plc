@@ -52,7 +52,7 @@ export class SocketController extends Controller implements ISocketController {
         return this.sockets
     }
 
-    public start(): boolean {
+    public override start(): boolean {
         setTimeout(() => { this.readButtons() }, READ_BUTTONS_DELAY)
         return true
     }

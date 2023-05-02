@@ -229,6 +229,7 @@ export class App {
             this.utils.getLog(),
             this.utils.getDB(),
             this.ctrls,
+            this.core.getOneWire(),
             ctrlData)
 
         /**

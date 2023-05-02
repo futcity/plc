@@ -9,6 +9,14 @@
                 { "name": "socket3", "pins": { "relay": "ext-rly10-3", "button": "ext-opto-3" } },
                 { "name": "socket4", "pins": { "relay": "ext-rly10-4", "button": "ext-opto-4" } }
             ]
+        },
+        {
+            "name": "temps",
+            "type": "meteo",
+            "sensors": [
+                { "name": "room",   "type": "ds18b20", "id": "" },
+                { "name": "street", "type": "ds18b20", "id": "" }
+            ]
         }
     ]
 }

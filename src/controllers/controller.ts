@@ -10,7 +10,8 @@
 
 export enum CtrlType {
     SOCKET      = "socket",
-    SECURITY    = "security"
+    SECURITY    = "security",
+    METEO       = "meteo"
 }
 
 export interface IController {

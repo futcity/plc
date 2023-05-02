@@ -12,10 +12,12 @@ import { IGpio } from "../core/gpio"
 import { IDB } from "../utils/db/db"
 import { ILog } from "../utils/log"
 import { CtrlType, IController } from "./controller"
+import { IMeteoController, MeteoController } from "./meteo/meteoctrl"
 import { ISocketController, SocketController } from "./socket/socketctrl"
 
 export interface IControllers {
     createSocket(name: string): ISocketController
+    createMeteo(name: string): IMeteoController
     getController(name: string): IController | undefined
     getControllers(): IController[]
 }
@@ -33,6 +35,12 @@ export class Controllers implements IControllers {
         const socket = new SocketController(this.log, this.gpio, this.db, CtrlType.SOCKET, name)
         this.ctrls.set(name, socket)
         return socket
+    }
+
+    public createMeteo(name: string): IMeteoController {
+        const meteo = new MeteoController(this.log, CtrlType.METEO, name)
+        this.ctrls.set(name, meteo)
+        return meteo
     }
 
     public getController(name: string): IController | undefined {

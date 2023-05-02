@@ -10,7 +10,11 @@
 
 import { CtrlType } from "../../../controllers/controller"
 import { IControllers } from "../../../controllers/controllers"
+import { IMeteoController } from "../../../controllers/meteo/meteoctrl"
+import { Ds18b20Sensor } from "../../../controllers/meteo/sensors/ds18b20"
+import { MeteoSensorType } from "../../../controllers/meteo/sensors/meteosens"
 import { ISocketController } from "../../../controllers/socket/socketctrl"
+import { IOneWire } from "../../../core/onewire"
 import { IDB } from "../../db/db"
 import { ILog, Mod } from "../../log"
 
@@ -19,6 +23,7 @@ export class ControllersConfigsParser {
         private readonly log: ILog,
         private readonly db: IDB,
         private readonly ctrls: IControllers,
+        private readonly ow: IOneWire,
         private readonly data: any
     ) { }
 
@@ -29,6 +34,12 @@ export class ControllersConfigsParser {
                     this.log.info(Mod.APP, `Add socket controller "${ctrl.name}"`)
                     const socket = this.ctrls.createSocket(ctrl.name)
                     this.parseSocket(socket, ctrl)
+                    break
+
+                case CtrlType.METEO:
+                    this.log.info(Mod.APP, `Add meteo controller "${ctrl.name}"`)
+                    const meteo = this.ctrls.createMeteo(ctrl.name)
+                    this.parseMeteo(meteo, ctrl)
                     break
 
                 default:
@@ -69,6 +80,33 @@ export class ControllersConfigsParser {
 
             const s = socket.getSocket(sock.name)
             s?.setState(state, false)
+        }
+    }
+
+    private parseMeteo(meteo: IMeteoController, ctrl: any) {
+        if (!ctrl.sensors) {
+            throw new Error("Meteo sensors not found")
+        }
+
+        for (const sensor of ctrl.sensors) {
+            if (!sensor.name) {
+                throw new Error("Meteo sensor name not found")
+            }
+            
+            /**
+             * Add new sensor
+             */
+
+            switch (sensor.type) {
+                case "ds18b20":
+                    meteo.addSensor(new Ds18b20Sensor(this.ow, sensor.id, sensor.name, MeteoSensorType.DS18B20))
+                    break
+
+                default:
+                    throw new Error(`Unknown meteo sensor type "${sensor.type}"`)
+            }
+            
+            this.log.info(Mod.APP, `Add meteo sensor type "${sensor.type}" name "${sensor.name}"`)
         }
     }
 }
