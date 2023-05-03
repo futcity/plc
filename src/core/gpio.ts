@@ -8,7 +8,7 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { Board, IBoard } from "./board/board"
+import { IBoard } from "./board/board"
 
 export enum GpioState {
     LOW,
@@ -23,7 +23,7 @@ export enum GpioMode {
 export enum GpioPull {
     DOWN,
     UP,
-    NONE
+    OFF
 }
 
 export interface IGpioPin {

@@ -61,7 +61,7 @@ export class BoardConfigsParser {
 
         for (const g of this.data.gpio) {
             let mode: GpioMode = GpioMode.INPUT
-            let pull: GpioPull = GpioPull.NONE
+            let pull: GpioPull = GpioPull.OFF
 
             switch (g.mode) {
                 case "input":
@@ -85,8 +85,8 @@ export class BoardConfigsParser {
                     pull = GpioPull.DOWN
                     break
 
-                case "none":
-                    pull = GpioPull.NONE
+                case "off":
+                    pull = GpioPull.OFF
                     break
 
                 default:
