@@ -27,7 +27,7 @@ export interface IModules {
     createWebHandlers(log: ILog, ctrls: IControllers): IWebHandlers
     createNetwork(log: ILog, ctrls: IControllers): INetwork
     createControllers(log: ILog, gpio: IGpio, db: IDB, ow: IOneWire): IControllers
-    createFTest(gpio: IGpio, lcd: ILiquidCrystal): FactoryTest
+    createFTest(gpio: IGpio, lcd: ILiquidCrystal, ow: IOneWire): FactoryTest
 }
 
 export class Modules implements IModules {
@@ -60,7 +60,7 @@ export class Modules implements IModules {
         return new Controllers(log, gpio, db, ow)
     }
 
-    public createFTest(gpio: IGpio, lcd: ILiquidCrystal): FactoryTest {
-        return new FactoryTest(gpio, lcd)
+    public createFTest(gpio: IGpio, lcd: ILiquidCrystal, ow: IOneWire): FactoryTest {
+        return new FactoryTest(gpio, lcd, ow)
     }
 }

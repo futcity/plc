@@ -37,7 +37,7 @@ export class OneWire implements IOneWire {
             let fname = file.split("-")
             if (fname.length > 1) {
                 if (fname[0] == OneWirePrefix.IBUTTON) {
-                    keys.push(fname[1])
+                    keys.push(fname[1].toUpperCase())
                 }
             }
         }, this);
@@ -52,9 +52,12 @@ export class OneWire implements IOneWire {
             let fname = file.split("-")
             if (fname.length > 1) {
                 if (fname[0] == OneWirePrefix.DS18B20) {
-                    const data = readFileSync(ONE_WIRE_PATH + file + "/temperature")
-                    const temp = parseInt(data.toString()) / 1000
-                    sensors.push(new DS18B20(fname[1], temp))
+                    try {
+                        const data = readFileSync(ONE_WIRE_PATH + file + "/temperature")
+                        const temp = parseInt(data.toString()) / 1000
+                        sensors.push(new DS18B20(fname[1].toUpperCase(), temp))
+                    } catch (err: any) {
+                    }
                 }
             }
         }, this);

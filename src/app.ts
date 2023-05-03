@@ -91,7 +91,11 @@ export class App {
          * Starting Factory Test
          */
 
-        this.mod.createFTest(this.core.getGpio(), this.core.getLiquidCrystal()).start()
+        this.mod.createFTest(
+            this.core.getGpio(),
+            this.core.getLiquidCrystal(),
+            this.core.getOneWire()
+        ).start()
     }
 
     public build() {
