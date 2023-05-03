@@ -28,7 +28,7 @@ export class FactoryTest {
     }
 
     private testAll() {
-        console.log("[FTEST] ========================================================")
+        console.log("[FTEST] ============================================================")
 
             this.testInputs()
             this.testOutputs()
@@ -51,7 +51,7 @@ export class FactoryTest {
     }
 
     private testOutputs() {
-        console.log("")
+        console.log("[FTEST]")
         console.log(`[FTEST] OUTPUTS:`)
         
         this.gpio.getPins().forEach((pin: IGpioPin, name: string) => {
@@ -69,7 +69,7 @@ export class FactoryTest {
     }
 
     private testDisplays() {
-        console.log("")
+        console.log("[FTEST]")
         console.log(`[FTEST] LCD:`)
 
         this.lcd.getDisplays().forEach((lcd: ILCDModule, name: string) => {
@@ -87,7 +87,7 @@ export class FactoryTest {
     }
 
     private testOneWire() {
-        console.log("")
+        console.log("[FTEST]")
         console.log(`[FTEST] ONE WIRE:`)
 
         console.log(`[FTEST]        KEYS:`);
@@ -97,7 +97,7 @@ export class FactoryTest {
 
         console.log(`[FTEST]        TEMP SENSORS:`);
         for (const sensor of this.ow.readSensors()) {
-            console.log(`[FTEST]                     SensorId: "${sensor.id}" SensorTemp: "${sensor.temp}"`);
+            console.log(`[FTEST]                     Id: "${sensor.id}" Temp: "${sensor.temp}"`);
         }
     }
 }

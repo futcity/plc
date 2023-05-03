@@ -126,6 +126,11 @@ export class ControllersConfigsParser {
         this.log.info(Mod.APP, `Security "alarm-led" pin is "${ctrl.pins.alarm.led}"`)
         this.log.info(Mod.APP, `Security "alarm-relay" pin is "${ctrl.pins.alarm.relay}"`)
 
+        for (const key of ctrl.keys) {
+            security.addKey(key)
+            this.log.info(Mod.APP, `Security add key "${key}"`)
+        }
+
         for (const sensor of ctrl.sensors) {
             switch (sensor.type) {
                 case "reedswitch":

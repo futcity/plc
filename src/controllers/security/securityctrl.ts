@@ -35,6 +35,7 @@ export interface ISecurityController extends IController {
     setStatus(status: boolean, save: boolean | undefined): void
     getStatus(): boolean
     getAlarm(): boolean
+    addKey(key: string): void
 }
 
 export class SecurityController extends Controller implements ISecurityController {

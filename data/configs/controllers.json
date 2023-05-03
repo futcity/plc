@@ -31,6 +31,9 @@
             },
             "sensors": [
                 { "name": "room", "type": "reedswitch", "pin": "ext-opto-8", "alarm": true }
+            ],
+            "keys": [
+                "123"
             ]
         }
     ]
