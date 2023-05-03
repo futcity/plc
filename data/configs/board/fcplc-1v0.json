@@ -1,6 +1,6 @@
 {
     "extenders": [
-        { "name": "lcd",    "type": "mcp23017", "addr": 39, "base": 800, "enabled": true  },
+        { "name": "lcd",    "type": "mcp23017", "addr": 68, "base": 800, "enabled": true  },
         { "name": "gpio",   "type": "mcp23017", "addr": 38, "base": 700, "enabled": true  },
         { "name": "unit-6", "type": "mcp23017", "addr": 37, "base": 600, "enabled": false },
         { "name": "unit-5", "type": "mcp23017", "addr": 36, "base": 500, "enabled": false },

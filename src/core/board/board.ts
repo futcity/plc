@@ -82,7 +82,7 @@ export class Board implements IBoard {
 
     public posLCD1602(row: number, col: number): boolean {
         if (!isSandBox) {
-            return <boolean>libBoard.posLCD1602()
+            return <boolean>libBoard.posLCD1602(col, row)
         } else {
             return true
         }

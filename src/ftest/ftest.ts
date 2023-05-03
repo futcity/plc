@@ -49,12 +49,20 @@ export class FactoryTest {
                 }
             }, this)
 
+            console.log("")
+            console.log(`[FTEST] LCD:`)
+
             this.lcd.getDisplays().forEach((lcd: ILCDModule, name: string) => {
+                const row1 = "      FCPLC"
+                const row2 = " FACTORY  TEST"
+
                 lcd.clear()
                 lcd.home()
-                lcd.print("   FCPLC")
+                lcd.print(row1)
                 lcd.pos(1, 0)
-                lcd.print("FACTORY TEST")
+                lcd.print(row2)
+
+                console.log(`[FTEST]        LCD "${name}" set text "${row1}" "${row2}"`)
             }) 
 
             this.lastState = !this.lastState
