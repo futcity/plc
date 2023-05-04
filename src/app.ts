@@ -52,6 +52,12 @@ export class App {
         }
 
         /**
+         * Starting OneWire bus
+         */
+
+        this.core.getOneWire().start()
+
+        /**
          * Starting controllers
          */
 
@@ -86,6 +92,12 @@ export class App {
         } else {
             process.exit(-1)
         }
+
+        /**
+         * Starting OneWire bus
+         */
+
+        this.core.getOneWire().start()
 
         /**
          * Starting Factory Test
