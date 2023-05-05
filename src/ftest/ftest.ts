@@ -90,11 +90,7 @@ export class FactoryTest {
         console.log("[FTEST]")
         console.log(`[FTEST] ONE WIRE:`)
 
-        console.log(`[FTEST]        KEYS:`);
-        for (const key of this.ow.readKeys()) {
-            console.log(`[FTEST]                     ${key}`);
-        }
-
+        console.log(`[FTEST]        KEY: ${this.ow.readKey()}`);
         console.log(`[FTEST]        TEMP SENSORS:`);
         for (const sensor of this.ow.readSensors()) {
             console.log(`[FTEST]                     Id: "${sensor.id}" Temp: "${sensor.temp}"`);

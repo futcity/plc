@@ -17,8 +17,8 @@ import { ISecuritySensor } from "./securitysensor";
 
 const READ_SENSORS_DELAY = 1000
 const ALARM_DELAY = 250
-const KEYS_CHECK_DELAY = 500
-const KEYS_READ_DELAY = 1500
+const KEYS_CHECK_DELAY = 100
+const KEYS_READ_DELAY = 3000
 
 export enum SecurityPin {
     STATUS,
@@ -95,12 +95,15 @@ export class SecurityController extends Controller implements ISecurityControlle
         } else {
             this.setAlarm(false)
             this.setPinState(SecurityPin.STATUS, GpioState.LOW)
+	    for (const sensor of this.sensors) {
+		sensor.setDetected(false)
+	    }
         }
         
         this.log.info(Mod.SECURITYCTRL, `Security status changed to "${this.status}"`)
 
         if (save) {
-            this.db.curDB().update(CtrlType.SOCKET, super.getName(), "global", "status", this.status)
+            this.db.curDB().update(CtrlType.SECURITY, super.getName(), "global", "status", this.status)
             this.db.curDB().save()
         }
     }
@@ -145,6 +148,7 @@ export class SecurityController extends Controller implements ISecurityControlle
         this.alarm = value
 
         if (this.alarm) {
+            this.setPinState(SecurityPin.ALARM_RELAY, GpioState.HIGH)
             setTimeout(() => { this.handlerAlarm() }, ALARM_DELAY)
         } else {
             this.lastAlrm = false
@@ -172,43 +176,22 @@ export class SecurityController extends Controller implements ISecurityControlle
     }
 
     private readKeys(): void {
-        let valid: boolean = false
+        const key = this.ow.readKey()
 
-        if (!this.getStatus()) {
-            setTimeout(() => { this.readKeys() }, KEYS_CHECK_DELAY)
-            return
-        }
-
-        const keys = this.ow.readKeys()
-
-        if (keys.length > 0) {
-            for (const key of keys) {
-                for (const k of this.keys) {
-                    if (key == k) {
-                        valid = true
-                        this.log.error(Mod.SECURITYCTRL, `Valid key "${key}" detected`)
-                        break
+        if (key != "") {
+            for (const k of this.keys) {
+                if (key == k) {
+		    this.ow.clearKey()
+                    this.log.info(Mod.SECURITYCTRL, `Valid key "${key}" detected`)
+                    try {
+                        this.setStatus(!this.getStatus(), true)
+                    } catch (err: any) {
+                        this.log.error(Mod.SECURITYCTRL, "Failed to switch security status by key", err.message)
                     }
-                }
-                if (valid) {
                     break
                 }
-            }
+	    }
     
-            if (valid) {
-                try {
-                    this.setStatus(!this.getStatus(), true)
-                } catch (err: any) {
-                    this.log.error(Mod.SECURITYCTRL, "Failed to switch security status by key", err.message)
-                }
-            } else {
-                let keysStr: string = ""
-                for (const key of keys) {
-                    keysStr += `"${key}" `
-                }
-                this.log.error(Mod.SECURITYCTRL, "Invalid keys detected: " + keysStr)
-            }
-
             setTimeout(() => { this.readKeys() }, KEYS_READ_DELAY)
         } else {
             setTimeout(() => { this.readKeys() }, KEYS_CHECK_DELAY)

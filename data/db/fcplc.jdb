@@ -14,5 +14,12 @@
                 "state": false
             }
         }
+    },
+    "security": {
+        "table": {
+            "global": {
+                "status": false
+            }
+        }
     }
 }

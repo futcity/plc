@@ -8,12 +8,12 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { Dirent } from "fs"
-import { readdir, readFile } from "fs"
+import { Dirent, readdir, readFile } from "fs"
 import { INVALID_VALUE } from "../controllers/meteo/sensors/meteosens"
 
 const ONE_WIRE_PATH = "/sys/bus/w1/devices/"
-const ONE_WIRE_CACHE_DELAY = 500
+const ONE_WIRE_TEMP_DELAY = 5000
+const ONE_WIRE_KEY_DELAY = 1000
 
 enum OneWirePrefix {
     IBUTTON = "01",
@@ -28,17 +28,22 @@ export class DS18B20 {
 }
 
 export interface IOneWire {
-    readKeys(): string[]
+    readKey(): string
     readSensors(): DS18B20[]
     start(): void
+    clearKey(): void
 }
 
 export class OneWire implements IOneWire {
     private sensors: DS18B20[] = new Array<DS18B20>()
-    private keys: string[] = new Array<string>()
+    private key: string
 
-    public readKeys(): string[] {
-        return this.keys
+    public readKey(): string {
+        return this.key
+    }
+
+    public clearKey() {
+	this.key = ""
     }
 
     public readSensors(): DS18B20[] {
@@ -46,7 +51,8 @@ export class OneWire implements IOneWire {
     }
 
     public start() {
-        setTimeout(() => { this.readCache() }, ONE_WIRE_CACHE_DELAY)
+        setInterval(() => { this.readTempCache() }, ONE_WIRE_TEMP_DELAY)
+        setInterval(() => { this.readButtonCache() }, ONE_WIRE_KEY_DELAY)
     }
 
     private findSensorById(id: string): DS18B20 | undefined {
@@ -57,36 +63,38 @@ export class OneWire implements IOneWire {
         }
     }
 
-    private readCache() {
-        readdir(ONE_WIRE_PATH, { withFileTypes: true }, (err: any, files: Dirent[]) => {
-            let keys: string[] = new Array<string>()
-
-            files.forEach((file: Dirent) => {
-                const fname: string[] = file.name.split("-")
-
+    private readCache(processCache: (prefix: OneWirePrefix, id: string) => any) {
+        readdir(ONE_WIRE_PATH, { withFileTypes: true }, async (err: any, files: Dirent[]) => {
+            for (const file of files) {
+                const fname = file.name.split("-")
                 if (fname.length > 1) {
-                    switch (fname[0]) {
-                        case OneWirePrefix.IBUTTON:
-                            keys.push(fname[1].toUpperCase())
-                            break
-
-                        case OneWirePrefix.DS18B20:
-                            const data = readFile(ONE_WIRE_PATH + file.name + "/temperature", (err: any, data: Buffer) => {
-                                let sensor = this.findSensorById(fname[1].toUpperCase())
-                                if (!sensor) {
-                                    sensor = new DS18B20(fname[1].toUpperCase(), INVALID_VALUE)
-                                    this.sensors.push(sensor)
-                                }
-                                sensor.temp = parseInt(data.toString()) / 1000
-                            })
-                            break
-                    }
+                    processCache(<OneWirePrefix>fname[0], fname[1])
                 }
-            }, this)
-
-            this.keys = keys
+            }
         })
+    }
 
-        setTimeout(() => { this.readCache() }, ONE_WIRE_CACHE_DELAY)
+    private readTempCache() {
+        this.readCache((prefix: OneWirePrefix, id: string) => {
+            if (prefix == OneWirePrefix.DS18B20) {
+                readFile(`${ONE_WIRE_PATH}${prefix}-${id}/temperature`, (err: any, data: Buffer) => {
+                    let sensor = this.findSensorById(id.toUpperCase())
+                    if (!sensor) {
+                        sensor = new DS18B20(id.toUpperCase(), INVALID_VALUE)
+                        this.sensors.push(sensor)
+                    }
+                    sensor.temp = parseInt(data.toString()) / 1000
+                })
+            }
+        })
+    }
+
+    private readButtonCache() {
+        this.key = ""
+        this.readCache((prefix: OneWirePrefix, id: string) => {
+            if (prefix == OneWirePrefix.IBUTTON) {
+                this.key = id.toUpperCase()
+            }
+        })
     }
 }
