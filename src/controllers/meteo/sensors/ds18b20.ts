@@ -31,6 +31,7 @@ export class Ds18b20Sensor extends MeteoSensor implements IMeteoSensor {
                 }
                 else {
                     this.temp = sensor.temp
+                    return true
                 }
             }
         }

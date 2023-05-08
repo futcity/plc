@@ -53,29 +53,23 @@ export class SocketController extends Controller implements ISocketController {
     }
 
     public override start(): boolean {
-        setTimeout(() => { this.readButtons() }, READ_BUTTONS_DELAY)
+        setInterval(() => { this.readButtons() }, READ_BUTTONS_DELAY)
         return true
     }
     
     private readButtons() {
-        let pressed: boolean = false
-
         for (const socket of this.sockets) {
-            if (socket.readButton()) {
-                pressed = true
-
+            if (socket.readButton() && !socket.getPressed()) {
+                socket.setPressed(true)
+                
                 if (socket.switchState()) {
                     this.log.info(Mod.SOCKETCTRL, `Socket "${socket.getName()}" is switched to "${socket.getState()}"`)
                 } else {
                     this.log.error(Mod.SOCKETCTRL, `Failed to switch socket "${socket.getName()}" state`)
                 }
-            }
-        }
 
-        if (pressed) {
-            setTimeout(() => { this.readButtons() }, READ_PRESSED_BUTTONS_DELAY)
-        } else {
-            setTimeout(() => { this.readButtons() }, READ_BUTTONS_DELAY)
+                setTimeout(() => { socket.setPressed(false) }, READ_PRESSED_BUTTONS_DELAY)
+            }
         }
     }
 }

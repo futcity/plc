@@ -23,15 +23,26 @@ export interface IMeteoSensor {
     getName(): string
     getError(): boolean
     setError(err: boolean): void
+    getTries(): number
+    setTries(tries: number): void
 }
 
 export class MeteoSensor implements IMeteoSensor {
     private error: boolean
+    private tries: number = 0
 
     constructor(
         private readonly name: string,
         private readonly type: MeteoSensorType,
     ) { }
+
+    public getTries(): number {
+        return this.tries
+    }
+
+    public setTries(tries: number) {
+        this.tries = tries
+    }
     
     public readData(): boolean {
         return false

@@ -51,6 +51,7 @@ export class OneWire implements IOneWire {
     }
 
     public start() {
+        this.readTempCache()
         setInterval(() => { this.readTempCache() }, ONE_WIRE_TEMP_DELAY)
         setInterval(() => { this.readButtonCache() }, ONE_WIRE_KEY_DELAY)
     }

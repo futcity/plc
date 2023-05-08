@@ -4,8 +4,7 @@
             "name": "weather",
             "type": "meteo",
             "sensors": [
-                { "name": "room",   "type": "ds18b20", "id": "" },
-                { "name": "street", "type": "ds18b20", "id": "" }
+                { "name": "room",   "type": "ds18b20", "id": "" }
             ]
         },
         {

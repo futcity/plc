@@ -18,10 +18,13 @@ export interface ISocket {
     setState(state: boolean, save?: boolean): boolean
     switchState(): boolean
     getName(): string
+    setPressed(state: boolean): void
+    getPressed(): boolean
 }
 
 export class Socket implements ISocket {
     private state: boolean = false
+    private pressed: boolean = false
 
     constructor(
         private readonly gpio: IGpio,
@@ -31,6 +34,14 @@ export class Socket implements ISocket {
         private readonly relay: string,
         private readonly button: string
     ) { }
+
+    public setPressed(state: boolean): void {
+        this.pressed = state
+    }
+
+    public getPressed(): boolean {
+        return this.pressed
+    }
 
     public readButton(): boolean {
         const pin = this.gpio.getPin(this.button)

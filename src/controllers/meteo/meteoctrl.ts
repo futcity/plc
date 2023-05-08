@@ -13,6 +13,7 @@ import { Controller, CtrlType, IController } from "../controller";
 import { IMeteoSensor, INVALID_VALUE, MeteoSensorType } from "./sensors/meteosens";
 
 const READ_SENSORS_DELAY = 1000
+const SENSOR_TRIES_MAX = 3
 
 export interface IMeteoController extends IController {
     addSensor(sensor: IMeteoSensor): void
@@ -56,16 +57,21 @@ export class MeteoController extends Controller implements IMeteoController {
         for (const sensor of this.sensors) {
             const ret = sensor.readData()
 
-            if (!ret) {
-                if (!sensor.getError()) {
+            if (!sensor.getError()) {
+                if (!ret) {
+                    sensor.setTries(sensor.getTries() + 1)
+                }
+
+                if (sensor.getTries() == SENSOR_TRIES_MAX) {
                     this.log.error(Mod.METEOCTRL, `Failed to read meteo sensor "${sensor.getName()}"`)
+                    sensor.setError(true)
                 }
-                sensor.setError(true)
             } else {
-                if (sensor.getError()) {
-                    this.log.error(Mod.METEOCTRL, `Meteo sensor "${sensor.getName()}" is online `)
+                if (ret) {
+                    sensor.setError(false)
+                    sensor.setTries(0)
+                    this.log.info(Mod.METEOCTRL, `Meteo sensor "${sensor.getName()}" is online `)
                 }
-                sensor.setError(false)
             }
         }
 
