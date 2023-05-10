@@ -20,6 +20,18 @@ var Displays = []
 /*                         PUBLIC FUNCTIONS                          */
 /*********************************************************************/
 
+/**
+ * 
+ * @param {string} name 
+ * @param {number} rs 
+ * @param {number} rw 
+ * @param {number} e 
+ * @param {number} k 
+ * @param {number} d4 
+ * @param {number} d5 
+ * @param {number} d6 
+ * @param {number} d7 
+ */
 export function addDisplay(name, rs, rw, e, k, d4, d5, d6, d7) {
     if (!board.initLCD1602(rs, rw, e, k, d4, d5, d6, d7))
         throw new Error("Failed to init display")

@@ -16,7 +16,8 @@ export const mod = {
     INDEX:      "INDEX",
     SOCKET:     "SOCKET",
     SECURITY:   "SECURITY",
-    METEO:      "METEO"
+    METEO:      "METEO",
+    CONFIGS:    "CONFIGS"
 }
 
 export function info(mod, message) {

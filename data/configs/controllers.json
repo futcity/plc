@@ -1,0 +1,40 @@
+{
+    "controllers": [
+        {
+            "name": "weather",
+            "type": "meteo",
+            "sensors": [
+                { "name": "cabinet", "type": "ds18b20", "id": "" },
+                { "name": "street",  "type": "ds18b20", "id": "" }
+            ]
+        },
+        {
+            "name": "rack",
+            "type": "socket",
+            "sockets": [
+                { "name": "socket1", "pins": { "relay": "ext-rly10-1", "button": "ext-opto-1" } },
+                { "name": "socket2", "pins": { "relay": "ext-rly10-2", "button": "ext-opto-2" } },
+                { "name": "socket3", "pins": { "relay": "ext-rly10-3", "button": "ext-opto-3" } },
+                { "name": "socket4", "pins": { "relay": "ext-rly10-4", "button": "ext-opto-4" } }
+            ]
+        },
+        {
+            "name": "table",
+            "type": "security",
+            "pins": {
+                "status": "cpu-led-sts1",
+                "buzzer": "int-relay5",
+                "alarm": {
+                    "led": "cpu-led-alrm",
+                    "relay": "ext-rly16-1"
+                }
+            },
+            "sensors": [
+                { "name": "box", "type": "reedswitch", "pin": "ext-opto-8", "alarm": true }
+            ],
+            "keys": [
+                ""
+            ]
+        }
+    ]
+}
