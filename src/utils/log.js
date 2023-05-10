@@ -6,9 +6,9 @@ export const mod = {
 }
 
 export function info(mod, message) {
-
+    console.log("INFO", mod, message)
 }
 
 export function error(mod, message, err="") {
-
+    console.log("ERROR", mod, message, err)
 }

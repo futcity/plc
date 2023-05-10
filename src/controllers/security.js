@@ -12,62 +12,59 @@ import * as gpio from "../core/gpio.js"
 import * as log from "../utils/log.js"
 import * as onewire from "../core/onewire.js"
 
-export const ALARM_LED_PIN      = 0
-export const ALARM_RELAY_PIN    = 1
-export const BUZZER_PIN         = 2
-export const STATUS_LED_PIN     = 3
-
-export const REED_SWITCH_SENSOR = "reedswitch"
-export const MICRO_WAVE_SENSOR  = "microwave"
-export const PIR_SENSOR         = "pir"
+/*********************************************************************/
+/*                         PRIVATE CONSTANTS                         */
+/*********************************************************************/
 
 const READ_SENSORS_DELAY    = 1000
 const ALARM_DELAY           = 250
 const KEYS_CHECK_DELAY      = 1000
 const KEYS_READED_DELAY     = 3000
 
-var Pins = new Map()
-var Sensors = []
-var Keys = []
-var Status = false
-var Alarm = false
-var LastAlarm = false
+/*********************************************************************/
+/*                         PRIVATE VARIABLES                         */
+/*********************************************************************/
+
+var Controllers = new Map()
+
+/*********************************************************************/
+/*                         PRIVATE FUNCTIONS                         */
+/*********************************************************************/
 
 function handlerAlarm() {
-    if (!Alarm)
-        return
+    Controllers.forEach((ctrl) => {
+        if (ctrl.alarm) {
+            const pinLed = gpio.getPin(ctrl.pins.get(ALARM_LED_PIN))
+            const pinBuzzer = gpio.getPin(ctrl.pins.get(BUZZER_PIN))
 
-    const pinLed = gpio.getPin(Pins.get(ALARM_LED_PIN))
-    const pinBuzzer = gpio.getPin(Pins.get(BUZZER_PIN))
+            if (!ctrl.lastAlarm) {
+                if (pinLed) { gpio.writePin(pinLed, gpio.HIGH) }
+                if (pinBuzzer) { gpio.writePin(pinBuzzer, gpio.HIGH) }
+            } else {
+                if (pinLed) { gpio.writePin(pinLed, gpio.LOW) }
+                if (pinBuzzer) { gpio.writePin(pinBuzzer, gpio.LOW) }
+            }
 
-    if (!LastAlarm) {
-        if (pinLed) { gpio.writePin(pinLed, gpio.HIGH) }
-        if (pinBuzzer) { gpio.writePin(pinBuzzer, gpio.HIGH) }
-    } else {
-        if (pinLed) { gpio.writePin(pinLed, gpio.LOW) }
-        if (pinBuzzer) { gpio.writePin(pinBuzzer, gpio.LOW) }
-    }
-
-    LastAlarm = !LastAlarm
-
+            ctrl.lastAlarm = !ctrl.lastAlarm
+        }
+    })
     setTimeout(() => { handlerAlarm() }, ALARM_DELAY)
 }
 
-function setAlarm(val) {
-    if (Alarm == val)
+function setAlarm(ctrl, val) {
+    if (ctrl.alarm == val)
         return
 
-    Alarm = val
+    ctrl.alarm = val
 
-    const pinRelay = gpio.getPin(Pins.get(ALARM_RELAY_PIN))
-    const pinLed = gpio.getPin(Pins.get(ALARM_LED_PIN))
-    const pinBuzzer = gpio.getPin(Pins.get(BUZZER_PIN))
+    const pinRelay = gpio.getPin(ctrl.pins.get(ALARM_RELAY_PIN))
+    const pinLed = gpio.getPin(ctrl.pins.get(ALARM_LED_PIN))
+    const pinBuzzer = gpio.getPin(ctrl.pins.get(BUZZER_PIN))
 
-    if (Alarm) {
-        setTimeout(() => { handlerAlarm() }, ALARM_DELAY)
+    if (ctrl.alarm) {
         if (pinRelay) { gpio.writePin(pinRelay, gpio.HIGH) }
     } else {
-        LastAlarm = false
+        ctrl.lastAlarm = false
         if (pinRelay) { gpio.writePin(pinRelay, gpio.LOW) }
         if (pinLed) { gpio.writePin(pinLed, gpio.LOW) }
         if (pinBuzzer) { gpio.writePin(pinBuzzer, gpio.LOW) }
@@ -97,22 +94,22 @@ function readState(sensor) {
 }
 
 function readSensors() {
-    if (!Status)
-        return
-
-    for (const sensor of Sensors) {
-        const state = readState(sensor)
-        if (state) {
-            if (!sensor.detected) {
-                log.info(log.mod.SECURITY, `Security sensor "${sensor.name}" was detected penetration`)
-                if (sensor.alarm && Status) {
-                    setAlarm(true)
-                    log.info(log.mod.SECURITY, `Alarm was started`)
+    Controllers.forEach((ctrl) => {
+        if (ctrl.status) {
+            for (const sensor of ctrl.sensors) {
+                if (readState(sensor)) {
+                    if (!sensor.detected) {
+                        log.info(log.mod.SECURITY, `Security sensor "${sensor.name}" of "${ctrl.name}" was detected penetration`)
+                        if (sensor.alarm && ctrl.status) {
+                            setAlarm(ctrl, true)
+                            log.info(log.mod.SECURITY, `Alarm for "${ctrl.name}" was started`)
+                        }
+                    }
+                    sensor.detected = true
                 }
             }
-            sensor.detected = true
         }
-    }
+    })
 }
 
 function readKeys() {
@@ -123,23 +120,25 @@ function readKeys() {
             if (keys.length > 0) {
                 let found = false
 
-                for (const key of keys) {
-                    for (const k of Keys) {
-                        if (key == k) {
-                            log.info(log.mod.SECURITY, `Valid key "${key}" detected`)
-                            found = true
-                            try {
-                                setStatus(!Status, true)
+                Controllers.forEach((ctrl) => {
+                    for (const key of keys) {
+                        for (const k of ctrl.keys) {
+                            if (key == k) {
+                                log.info(log.mod.SECURITY, `Valid key "${key}" detected for controller "${ctrl.name}"`)
                                 found = true
+                                try {
+                                    setStatus(ctrl, !ctrl.status, true)
+                                    found = true
+                                    break
+                                } catch (err) {
+                                    log.error(log.mod.SECURITY, `Failed to switch security status by key for controller "${ctrl.name}"`, err.message)
+                                }
                                 break
-                            } catch (err) {
-                                log.error(log.mod.SECURITY, "Failed to switch security status by key", err.message)
                             }
-                            break
                         }
+                        if (found) { break }
                     }
-                    if (found) { break }
-                }
+                })
 
                 if (!found) {
                     log.error(log.mod.SECURITY, "Ivalid keys detected: " + keys)
@@ -153,25 +152,79 @@ function readKeys() {
     })
 }
 
-export function setPin(type, name) {
+/*********************************************************************/
+/*                          PUBLIC CONSTANTS                         */
+/*********************************************************************/
+
+export const ALARM_LED_PIN      = 0
+export const ALARM_RELAY_PIN    = 1
+export const BUZZER_PIN         = 2
+export const STATUS_LED_PIN     = 3
+
+export const REED_SWITCH_SENSOR = "reedswitch"
+export const MICRO_WAVE_SENSOR  = "microwave"
+export const PIR_SENSOR         = "pir"
+
+/*********************************************************************/
+/*                          PUBLIC FUNCTIONS                         */
+/*********************************************************************/
+
+/**
+ * 
+ * @param {string} name 
+ */
+export function addController(name) {
+    const ctrl = {
+        name: name,
+        pins: new Map(),
+        sensors: [],
+        keys: [],
+        status: false,
+        alarm: false,
+        lastAlarm: false
+    }
+
+    Controllers.set(name, ctrl)
+
+    return ctrl
+}
+
+/**
+ * 
+ * @param {string} name 
+ * @returns Security Controller
+ */
+export function getController(name) {
+    return Controllers.get(name)
+}
+
+export function setPin(ctrl, type, name) {
     if ((type != ALARM_LED_PIN) &&
         (type != ALARM_RELAY_PIN) &&
         (type != BUZZER_PIN) &&
         (type != STATUS_LED_PIN)) {
-        throw new Error(`Unknown pin "${name}" type "${type}"`)
+        throw new Error(`Unknown pin "${name}" type "${type}" ctrl "${ctrl.name}"`)
     }
 
-    Pins.set(type, name)
+    ctrl.pins.set(type, name)
 }
 
-export function addSensor(name, type, pin, alarm) {
+/**
+ * 
+ * @param {*} ctrl 
+ * @param {string} name 
+ * @param {number} type 
+ * @param {string} pin 
+ * @param {boolean} alarm 
+ */
+export function addSensor(ctrl, name, type, pin, alarm) {
     if ((type != REED_SWITCH_SENSOR) &&
         (type != MICRO_WAVE_SENSOR) &&
         (type != PIR_SENSOR)) {
-        throw new Error(`Unknown sensor "${name}" type "${type}"`)
+        throw new Error(`Unknown sensor "${name}" type "${type}" ctrl "${ctrl.name}"`)
     }
 
-    Sensors.push({
+    ctrl.sensors.push({
         name: name,
         type: type,
         pin: pin,
@@ -180,38 +233,43 @@ export function addSensor(name, type, pin, alarm) {
     })
 }
 
-export function addKey(key) {
-    Keys.push(key)
+export function addKey(ctrl, key) {
+    ctrl.keys.push(key)
 }
 
-export function getSensors() {
-    return Sensors
+export function getSensors(ctrl) {
+    return ctrl.sensors
 }
 
-export function getStatus() {
-    return Status
+export function getStatus(ctrl) {
+    return ctrl.status
 }
 
-export function getAlarm() {
-    return Alarm
+export function getAlarm(ctrl) {
+    return ctrl.alarm
 }
 
-export function setStatus(val) {
-    Status = val
+/**
+ * 
+ * @param {*} ctrl 
+ * @param {boolean} val 
+ */
+export function setStatus(ctrl, val, save=true) {
+    ctrl.status = val
 
-    const pin = gpio.getPin(Pins.get(STATUS_LED_PIN))
+    const pin = gpio.getPin(ctrl.pins.get(STATUS_LED_PIN))
 
-    if (Status) {
+    if (ctrl.status) {
         if (pin) { gpio.writePin(pin, gpio.HIGH) }
     } else {
-        setAlarm(false)
+        setAlarm(ctrl, false)
         if (pin) { gpio.writePin(pin, gpio.LOW) }
-        for (const sensor of Sensors) {
+        for (const sensor of ctrl.sensors) {
             sensor.detected = false
         }
     }
     
-    log.info(log.mod.SECURITY, `Security Status changed to "${Status}"`)
+    log.info(log.mod.SECURITY, `Security status changed to "${ctrl.status}" for controller "${ctrl.name}"`)
 
     if (save) {
         //db.curDB().update(CtrlType.SECURITY, super.getName(), "global", "Status", Status)
@@ -222,4 +280,5 @@ export function setStatus(val) {
 export function start() {
     setInterval(() => { readSensors() }, READ_SENSORS_DELAY)
     setTimeout(() => { readKeys() }, KEYS_CHECK_DELAY)
+    setTimeout(() => { handlerAlarm() }, ALARM_DELAY)
 }
