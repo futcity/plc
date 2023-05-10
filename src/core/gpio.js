@@ -20,7 +20,7 @@ export const OUTPUT = 1
 
 export const DOWN   = 0
 export const UP     = 1
-export const NONE   = 2
+export const OFF    = 2
 
 /**
  * 
@@ -69,7 +69,7 @@ export function readPin(pin) {
 }
 
 export function writePin(pin, state) {
-    board.writePin(pin.pin, state)
+    return board.writePin(pin.pin, state)
 }
 
 export function readPinA(pin) {

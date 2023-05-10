@@ -1,64 +1,34 @@
+/*********************************************************************/
+/*                                                                   */
+/* Future City Programmable Logic Controller                         */
+/*                                                                   */
+/* Copyright (C) 2023 Denisov Smart Devices Limited                  */
+/* License: GPLv3                                                    */
+/* Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com) */
+/*                                                                   */
+/*********************************************************************/
+
 import * as gpio from "../core/gpio.js"
 import * as log from "../utils/log.js"
+
+/*********************************************************************/
+/*                         PRIVATE CONSTANTS                         */
+/*********************************************************************/
 
 const READ_BUTTONS_DELAY            = 200
 const READ_PRESSED_BUTTONS_DELAY    = 1000
 
-var sockets = []
+/*********************************************************************/
+/*                         PRIVATE VARIABLES                         */
+/*********************************************************************/
 
-/**
- * 
- * @param {string} name 
- * @param {gpio} relay 
- * @param {gpio} button 
- */
-export function addSocket(name, relay, button) {
-    sockets.push({
-        name: name,
-        relay: relay,
-        button: button,
-        status: false,
-        pressed: false
-    })
-}
+var Controllers = new Map()
 
-/**
- * 
- * @param {string} name 
- */
-export function getSocket(name) {
-    for (const socket of sockets) {
-        if (socket.name == name) {
-            return socket
-        }
-    }
-}
+/*********************************************************************/
+/*                         PRIVATE FUNCTIONS                         */
+/*********************************************************************/
 
-/**
- * 
- * @param {*} socket 
- * @param {boolean} status 
- */
-export function setStatus(socket, status, save) {
-    const pin = gpio.getPin(socket.relay)
-
-    if (pin) {
-        if (!gpio.writePin(pin, (status) ? gpio.HIGH : gpio.LOW))
-            throw new Error(`Failed to write to GPIO "${gpio.name}"`)
-    }
-
-    if (save) {
-        //throw new Error(`Failed to save socket status to db "${gpio.name}"`)
-    }
-
-    socket.status = status
-}
-
-export function getStatus(socket) {
-    return socket.status
-}
-
-export function readButton(socket) {
+function readButton(socket) {
     const pin = gpio.getPin(socket.button)
 
     if (pin) {
@@ -70,23 +40,106 @@ export function readButton(socket) {
     return false
 }
 
+/*********************************************************************/
+/*                         PUBLIC FUNCTIONS                         */
+/*********************************************************************/
+
+/**
+ * 
+ * @param {string} name 
+ */
+export function addController(name) {
+    const ctrl = {
+        name: name,
+        sockets: []
+    }
+
+    Controllers.set(name, ctrl)
+
+    return ctrl
+}
+
+/**
+ * 
+ * @param {string} name 
+ * @returns Socket Controller
+ */
+export function getController(name) {
+    return Controllers.get(name)
+}
+
+/**
+* 
+* @param {object} ctrl
+* @param {string} name 
+*/
+export function getSocket(ctrl, name) {
+   for (const socket of ctrl.sockets) {
+       if (socket.name == name) {
+           return socket
+       }
+   }
+}
+
+/**
+ * 
+ * @param {object} ctrl
+ * @param {string} name 
+ * @param {string} relay 
+ * @param {string} button 
+ */
+export function addSocket(ctrl, name, relay, button) {
+    ctrl.sockets.push({
+        name: name,
+        relay: relay,
+        button: button,
+        status: false,
+        pressed: false
+    })
+}
+
+/**
+ * 
+ * @param {object} socket 
+ * @param {boolean} status 
+ * @param {boolean} save 
+ */
+export function setStatus(ctrl, socket, status, save=true) {
+    const pin = gpio.getPin(socket.relay)
+
+    if (pin) {
+        if (!gpio.writePin(pin, (status) ? gpio.HIGH : gpio.LOW))
+            throw new Error(`Failed to write to GPIO "${pin.name}"`)
+    }
+
+    if (save) {
+        //ctrl.name
+        //throw new Error(`Failed to save socket status to db "${gpio.name}"`)
+    }
+
+    socket.status = status
+    log.info(log.mod.SOCKET, `Socket "${socket.name}" status changed to "${socket.status}" for controller "${ctrl.name}"`)
+}
+
 export function start() {
     setInterval(() => readButtons(), READ_BUTTONS_DELAY)
 }
 
 function readButtons() {
-    for (const socket of sockets) {
-        if (readButton(socket) && !socket.pressed) {
-            socket.pressed = true
-            setTimeout(() => { socket.pressed = false }, READ_PRESSED_BUTTONS_DELAY)
-
-            try {
-                setStatus(socket, !getStatus(socket), true)
-                log.info(log.mod.SOCKET, `Socket "${socket.name}" is switched to "${socket.status}"`)
-            }
-            catch (err) {
-                log.error(log.mod.SOCKET, `Failed to switch socket "${socket.name}" status`)
+    Controllers.forEach((ctrl) => {
+        for (const socket of ctrl.sockets) {
+            if (readButton(socket) && !socket.pressed) {
+                socket.pressed = true
+                setTimeout(() => { socket.pressed = false }, READ_PRESSED_BUTTONS_DELAY)
+    
+                try {
+                    setStatus(ctrl, socket, !socket.status, true)
+                    log.info(log.mod.SOCKET, `Socket "${socket.name}" is switched to "${socket.status}" for ctrl "${ctrl.name}"`)
+                }
+                catch (err) {
+                    log.error(log.mod.SOCKET, `Failed to switch socket "${socket.name}" status`, err.message)
+                }
             }
         }
-    }
+    })
 }

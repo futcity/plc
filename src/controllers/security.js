@@ -48,7 +48,6 @@ function handlerAlarm() {
             ctrl.lastAlarm = !ctrl.lastAlarm
         }
     })
-    setTimeout(() => { handlerAlarm() }, ALARM_DELAY)
 }
 
 function setAlarm(ctrl, val) {
@@ -99,7 +98,7 @@ function readSensors() {
             for (const sensor of ctrl.sensors) {
                 if (readState(sensor)) {
                     if (!sensor.detected) {
-                        log.info(log.mod.SECURITY, `Security sensor "${sensor.name}" of "${ctrl.name}" was detected penetration`)
+                        log.info(log.mod.SECURITY, `Security sensor "${sensor.name}" of ctrl "${ctrl.name}" was detected penetration`)
                         if (sensor.alarm && ctrl.status) {
                             setAlarm(ctrl, true)
                             log.info(log.mod.SECURITY, `Alarm for "${ctrl.name}" was started`)
@@ -131,7 +130,7 @@ function readKeys() {
                                     found = true
                                     break
                                 } catch (err) {
-                                    log.error(log.mod.SECURITY, `Failed to switch security status by key for controller "${ctrl.name}"`, err.message)
+                                    log.error(log.mod.SECURITY, `Failed to switch security status by key for ctrl "${ctrl.name}"`, err.message)
                                 }
                                 break
                             }
@@ -279,6 +278,6 @@ export function setStatus(ctrl, val, save=true) {
 
 export function start() {
     setInterval(() => { readSensors() }, READ_SENSORS_DELAY)
+    setInterval(() => { handlerAlarm() }, ALARM_DELAY)
     setTimeout(() => { readKeys() }, KEYS_CHECK_DELAY)
-    setTimeout(() => { handlerAlarm() }, ALARM_DELAY)
 }
