@@ -10,43 +10,87 @@
 
 import * as onewire from "../core/onewire.js"
 
-export const DS18B20_SENSOR = 0
+/*********************************************************************/
+/*                        PRIVATE CONSTANTS                          */
+/*********************************************************************/
 
 const READ_SENSORS_DELAY    = 5000
 const READ_ERRORS_MAX       = 3
 
-var Sensors = []
+/*********************************************************************/
+/*                        PRIVATE VARIABLES                          */
+/*********************************************************************/
 
-export function readSensors() {
-    for (const sensor of Sensors) {
-        if (sensor.type == DS18B20_SENSOR) {
-            onewire.readTemp(sensor.id, (temp, err) => {
-                if (err) {
-                    if (sensor.errors == READ_ERRORS_MAX) {
-                        log.error(log.mod.METEO, `Failed to read meteo sensor "${sensor.name}"`)
+var Controllers = new Map()
+
+/*********************************************************************/
+/*                        PRIVATE FUNCTIONS                          */
+/*********************************************************************/
+
+function readSensors() {
+    Controllers.forEach((ctrl) => {
+        for (const sensor of ctrl.sensors) {
+            if (sensor.type == DS18B20_SENSOR) {
+                onewire.readTemp(sensor.id, (temp, err) => {
+                    if (err) {
+                        if (sensor.errors == READ_ERRORS_MAX) {
+                            log.error(log.mod.METEO, `Failed to read meteo sensor "${sensor.name}" ctrl "${ctrl.name}"`)
+                        } else {
+                            sensor.errors++
+                        }
                     } else {
-                        sensor.errors++
+                        if (sensor.errors == READ_ERRORS_MAX) {
+                            log.info(log.mod.METEO, `Meteo sensor "${sensor.name}" ctrl "${ctrl.name}" is online`)
+                        }
+                        sensor.errors = 0
+                        sensor.temp = temp
                     }
-                } else {
-                    if (sensor.errors == READ_ERRORS_MAX) {
-                        log.info(log.mod.METEO, `Meteo sensor "${sensor.name}" is online`)
-                    }
-                    sensor.errors = 0
-                    sensor.temp = temp
-                }
-            })
+                })
+            }
         }
-    }
-
-    setTimeout(() => { readSensors() }, READ_SENSORS_DELAY)
+    })
 }
 
-export function addSensor(name, type, id) {
-    if ((type != DS18B20_SENSOR)) {
-        throw new Error(`Unknown sensor "${name}" type "${type}"`)
+/*********************************************************************/
+/*                         PUBLIC CONSTANTS                          */
+/*********************************************************************/
+
+export const DS18B20_SENSOR = 0
+
+/*********************************************************************/
+/*                         PUBLIC FUNCTIONS                          */
+/*********************************************************************/
+
+/**
+ * 
+ * @param {string} name 
+ */
+export function addController(name) {
+    const ctrl = {
+        name: name,
+        sensors: []
     }
 
-    Sensors.push({
+    Controllers.set(name, ctrl)
+
+    return ctrl
+}
+
+/**
+ * 
+ * @param {string} name 
+ * @returns Meteo Controller
+ */
+export function getController(name) {
+    return Controllers.get(name)
+}
+
+export function addSensor(ctrl, name, type, id) {
+    if ((type != DS18B20_SENSOR)) {
+        throw new Error(`Unknown sensor "${name}" type "${type}" ctrl "${ctrl.name}"`)
+    }
+
+    ctrl.sensors.push({
         name: name,
         type: type,
         id: id,
@@ -56,9 +100,9 @@ export function addSensor(name, type, id) {
 }
 
 export function start() {
-    setTimeout(() => { readSensors() }, READ_SENSORS_DELAY)
+    setInterval(() => { readSensors() }, READ_SENSORS_DELAY)
 }
 
-export function getSensors() {
-    return Sensors
+export function getSensors(ctrl) {
+    return ctrl.sensors
 }
