@@ -1,3 +1,25 @@
 {
-    
+    "socket": {
+        "rack": {
+            "socket1": {
+                "status": false
+            },
+            "socket2": {
+                "status": false
+            },
+            "socket3": {
+                "status": false
+            },
+            "socket4": {
+                "status": false
+            }
+        }
+    },
+    "security": {
+        "table": {
+            "global": {
+                "status": false
+            }
+        }
+    }
 }

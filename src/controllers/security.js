@@ -271,13 +271,15 @@ export function setStatus(ctrl, val, save=true) {
     log.info(log.mod.SECURITY, `Security status changed to "${ctrl.status}" for controller "${ctrl.name}"`)
 
     if (save) {
-        //db.curDB().update(CtrlType.SECURITY, super.getName(), "global", "Status", Status)
-        //db.curDB().save()
+        db.update("security", ctrl.name, "global", "status", ctrl.status)
+        db.save()
     }
 }
 
 export function start() {
-    setInterval(() => { readSensors() }, READ_SENSORS_DELAY)
-    setInterval(() => { handlerAlarm() }, ALARM_DELAY)
-    setTimeout(() => { readKeys() }, KEYS_CHECK_DELAY)
+    if (Controllers.size > 0) {
+        setInterval(() => { readSensors() }, READ_SENSORS_DELAY)
+        setInterval(() => { handlerAlarm() }, ALARM_DELAY)
+        setTimeout(() => { readKeys() }, KEYS_CHECK_DELAY)
+    }
 }

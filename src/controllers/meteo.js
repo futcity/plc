@@ -100,7 +100,9 @@ export function addSensor(ctrl, name, type, id) {
 }
 
 export function start() {
-    setInterval(() => { readSensors() }, READ_SENSORS_DELAY)
+    if (Controllers.size > 0) {
+        setInterval(() => { readSensors() }, READ_SENSORS_DELAY)
+    }
 }
 
 export function getSensors(ctrl) {

@@ -10,6 +10,7 @@
 
 import * as gpio from "../core/gpio.js"
 import * as log from "../utils/log.js"
+import * as db from "../database/db.js"
 
 /*********************************************************************/
 /*                         PRIVATE CONSTANTS                         */
@@ -113,8 +114,8 @@ export function setStatus(ctrl, socket, status, save=true) {
     }
 
     if (save) {
-        //ctrl.name
-        //throw new Error(`Failed to save socket status to db "${gpio.name}"`)
+        db.update("socket", ctrl.name, socket.name, "status", socket.status)
+        db.save()
     }
 
     socket.status = status
@@ -122,7 +123,9 @@ export function setStatus(ctrl, socket, status, save=true) {
 }
 
 export function start() {
-    setInterval(() => readButtons(), READ_BUTTONS_DELAY)
+    if (Controllers.size > 0) {
+        setInterval(() => readButtons(), READ_BUTTONS_DELAY)
+    }
 }
 
 function readButtons() {

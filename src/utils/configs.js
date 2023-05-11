@@ -17,6 +17,7 @@ import * as lcd from "../core/lcd.js"
 import * as socket from "../controllers/socket.js"
 import * as security from "../controllers/security.js"
 import * as meteo from "../controllers/meteo.js"
+import * as db from "../database/db.js"
 
 /*********************************************************************/
 /*                          PRIVATE FUNCTIONS                        */
@@ -125,7 +126,38 @@ function readBoardConfigs(path) {
     }
 }
 
-function readControllers(path) {
+function readGeneralConfigs(path) {
+    const data = readFromFile(`${path}/general.json`)
+
+    switch (data.db.type) {
+        case "jdb":
+            log.info(log.mod.CONFIGS, `Loading JDB from file "${data.db.jdb.file}"`)
+            try {
+                db.setType(db.JDB)
+                db.loadFromFile(data.db.jdb.file)
+            } catch (err) {
+                log.error(log.mod.CONFIGS, `Failed to load JDB`, err)
+                return false
+            }
+            break
+
+        case "mongo":
+            log.info(log.mod.CONFIGS, `Connecting MongoDB to "${data.db.mongo.ip}"`)
+            try {
+                db.setType(db.MONGO)
+                db.connect(data.db.mongo.ip, data.db.mongo.user, data.db.mongo.pass)
+            } catch (err) {
+                log.error(log.mod.CONFIGS, `Failed to load MongoDB`, err)
+                return false
+            }
+            break
+
+        default:
+            throw new Error(`Unknown database type`)
+    }
+}
+
+function readControllersConfigs(path) {
     const data = readFromFile(`${path}/controllers.json`)
 
     for (const ctrl of data.controllers) {
@@ -170,20 +202,73 @@ function parseSocket(ctrl, data) {
         let state = false
 
         try {
-            //state = this.db.curDB().select(CtrlType.SOCKET, ctrl.name, sock.name, "state")
+            state = db.select("socket", ctrl.name, sock.name, "status")
         } catch (err) {
-            //this.db.curDB().insert(CtrlType.SOCKET, ctrl.name, sock.name, "state", state)
-            //this.db.curDB().save()
+            db.insert("socket", ctrl.name, sock.name, "status", state)
+            db.save()
         }
     }
 }
 
 function parseMeteo(ctrl, data) {
-    
+    for (const sensor of data.sensors) {
+        switch (sensor.type) {
+            case "ds18b20":
+                meteo.addSensor(ctrl, sensor.name, meteo.DS18B20_SENSOR, sensor.id)
+                break
+
+            default:
+                throw new Error(`Unknown meteo sensor type "${sensor.type}"`)
+        }
+        log.info(log.mod.CONFIGS, `Add meteo sensor "${sensor.name}" type "${sensor.type}" ctrl "${ctrl.name}"`)
+    }
 }
 
 function parseSecurity(ctrl, data) {
-    
+    security.setPin(ctrl, security.STATUS_LED_PIN, data.pins.status)
+    security.setPin(ctrl, security.BUZZER_PIN, data.pins.buzzer)
+    security.setPin(ctrl, security.ALARM_LED_PIN, data.pins.alarm.led)
+    security.setPin(ctrl, security.ALARM_RELAY_PIN, data.pins.alarm.relay)
+
+    log.info(log.mod.CONFIGS, `Security "status" pin is "${data.pins.status}"`)
+    log.info(log.mod.CONFIGS, `Security "buzzer" pin is "${data.pins.buzzer}"`)
+    log.info(log.mod.CONFIGS, `Security "alarm-led" pin is "${data.pins.alarm.led}"`)
+    log.info(log.mod.CONFIGS, `Security "alarm-relay" pin is "${data.pins.alarm.relay}"`)
+
+    for (const key of data.keys) {
+        security.addKey(ctrl, key)
+        log.info(log.mod.CONFIGS, `Security add key "${key}"`)
+    }
+
+    for (const sensor of data.sensors) {
+        switch (sensor.type) {
+            case "reedswitch":
+                security.addSensor(ctrl, sensor.name, security.REED_SWITCH_SENSOR, sensor.pin, sensor.alarm)
+                break
+
+            case "pir":
+                security.addSensor(ctrl, sensor.name, security.PIR_SENSOR, sensor.pin, sensor.alarm)
+                break
+
+            case "microwave":
+                security.addSensor(ctrl, sensor.name, security.MICRO_WAVE_SENSOR, sensor.pin, sensor.alarm)
+                break
+
+            default:
+                throw new Error(`Unknown security sensor type "${sensor.type}"`)
+        }
+        log.info(log.mod.CONFIGS, `Add security sensor "${sensor.name}" type "${sensor.type}" ctrl "${ctrl.name}"`)
+    }
+
+    let status = false
+    try {
+        status = db.select("security", ctrl.name, "global", "status")
+    } catch (err) {
+        db.insert("security", ctrl.name, "global", "status", status)
+        db.save()
+    }
+
+    security.setStatus(ctrl, status, false)
 }
 
 /*********************************************************************/
@@ -204,5 +289,6 @@ export function loadMinConfigs(path) {
  */
 export function loadConfigs(path) {
     readBoardConfigs(path)
-    readControllers(path)
+    readGeneralConfigs(path)
+    readControllersConfigs(path)
 }
