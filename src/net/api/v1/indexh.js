@@ -9,22 +9,17 @@
 /*********************************************************************/
 
 /*********************************************************************/
-/*                          PUBLIC CONSTANTS                         */
+/*                        PRIVATE FUNCTIONS                          */
 /*********************************************************************/
 
-export const mod = {
-    INDEX:      "INDEX",
-    SOCKET:     "SOCKET",
-    SECURITY:   "SECURITY",
-    METEO:      "METEO",
-    CONFIGS:    "CONFIGS",
-    SERVER:     "SERVER"
+function info(req, resp) {
+    resp.send("<h1>FCPLC</h1>")
 }
 
-export function info(mod, message) {
-    console.log("INFO", mod, message)
-}
+/*********************************************************************/
+/*                         PUBLIC FUNCTIONS                          */
+/*********************************************************************/
 
-export function error(mod, message, err="") {
-    console.log("ERROR", mod, message, err)
+export function register(exp) {
+    exp.get("/", (req, resp) => { info(req, resp) })
 }

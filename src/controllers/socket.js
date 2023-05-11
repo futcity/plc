@@ -109,8 +109,9 @@ export function setStatus(ctrl, socket, status, save=true) {
     const pin = gpio.getPin(socket.relay)
 
     if (pin) {
-        if (!gpio.writePin(pin, (status) ? gpio.HIGH : gpio.LOW))
-            throw new Error(`Failed to write to GPIO "${pin.name}"`)
+        if (!gpio.writePin(pin, (status) ? gpio.HIGH : gpio.LOW)) {
+            throw new Error(`Failed to write to GPIO "${pin.name}" for controller "${ctrl.name}"`)
+        }
     }
 
     if (save) {
@@ -137,10 +138,10 @@ function readButtons() {
     
                 try {
                     setStatus(ctrl, socket, !socket.status, true)
-                    log.info(log.mod.SOCKET, `Socket "${socket.name}" is switched to "${socket.status}" for ctrl "${ctrl.name}"`)
+                    log.info(log.mod.SOCKET, `Socket "${socket.name}" is switched to "${socket.status}" for controller "${ctrl.name}"`)
                 }
                 catch (err) {
-                    log.error(log.mod.SOCKET, `Failed to switch socket "${socket.name}" status`, err.message)
+                    log.error(log.mod.SOCKET, `Failed to switch socket "${socket.name}" status for controller "${ctrl.name}"`, err.message)
                 }
             }
         }

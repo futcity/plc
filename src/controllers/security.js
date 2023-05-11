@@ -202,7 +202,7 @@ export function setPin(ctrl, type, name) {
         (type != ALARM_RELAY_PIN) &&
         (type != BUZZER_PIN) &&
         (type != STATUS_LED_PIN)) {
-        throw new Error(`Unknown pin "${name}" type "${type}" ctrl "${ctrl.name}"`)
+        throw new Error(`Unknown pin "${name}" type "${type}" for controller "${ctrl.name}"`)
     }
 
     ctrl.pins.set(type, name)
@@ -220,7 +220,7 @@ export function addSensor(ctrl, name, type, pin, alarm) {
     if ((type != REED_SWITCH_SENSOR) &&
         (type != MICRO_WAVE_SENSOR) &&
         (type != PIR_SENSOR)) {
-        throw new Error(`Unknown sensor "${name}" type "${type}" ctrl "${ctrl.name}"`)
+        throw new Error(`Unknown sensor "${name}" type "${type}" for controller "${ctrl.name}"`)
     }
 
     ctrl.sensors.push({

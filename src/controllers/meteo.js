@@ -9,6 +9,7 @@
 /*********************************************************************/
 
 import * as onewire from "../core/onewire.js"
+import * as log from "../utils/log.js"
 
 /*********************************************************************/
 /*                        PRIVATE CONSTANTS                          */
@@ -87,7 +88,7 @@ export function getController(name) {
 
 export function addSensor(ctrl, name, type, id) {
     if ((type != DS18B20_SENSOR)) {
-        throw new Error(`Unknown sensor "${name}" type "${type}" ctrl "${ctrl.name}"`)
+        throw new Error(`Unknown sensor "${name}" type "${type}" for controller "${ctrl.name}"`)
     }
 
     ctrl.sensors.push({

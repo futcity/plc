@@ -18,6 +18,7 @@ import * as socket from "../controllers/socket.js"
 import * as security from "../controllers/security.js"
 import * as meteo from "../controllers/meteo.js"
 import * as db from "../database/db.js"
+import * as server from "../net/server.js"
 
 /*********************************************************************/
 /*                          PRIVATE FUNCTIONS                        */
@@ -155,6 +156,9 @@ function readGeneralConfigs(path) {
         default:
             throw new Error(`Unknown database type`)
     }
+
+    server.setAPI(data.server.api)
+    server.setPort(data.server.port)
 }
 
 function readControllersConfigs(path) {
@@ -220,7 +224,7 @@ function parseMeteo(ctrl, data) {
             default:
                 throw new Error(`Unknown meteo sensor type "${sensor.type}"`)
         }
-        log.info(log.mod.CONFIGS, `Add meteo sensor "${sensor.name}" type "${sensor.type}" ctrl "${ctrl.name}"`)
+        log.info(log.mod.CONFIGS, `Add meteo sensor "${sensor.name}" type "${sensor.type}"`)
     }
 }
 
@@ -257,7 +261,7 @@ function parseSecurity(ctrl, data) {
             default:
                 throw new Error(`Unknown security sensor type "${sensor.type}"`)
         }
-        log.info(log.mod.CONFIGS, `Add security sensor "${sensor.name}" type "${sensor.type}" ctrl "${ctrl.name}"`)
+        log.info(log.mod.CONFIGS, `Add security sensor "${sensor.name}" type "${sensor.type}"`)
     }
 
     let status = false

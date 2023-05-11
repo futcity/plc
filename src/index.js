@@ -13,6 +13,7 @@ import * as socket from "./controllers/socket.js"
 import * as meteo from "./controllers/meteo.js"
 import * as configs from "./utils/configs.js"
 import * as log from "./utils/log.js"
+import * as server from "./net/server.js"
 
 function main() {
     try {
@@ -25,6 +26,13 @@ function main() {
     security.start()
     socket.start()
     meteo.start()
+
+    try {
+        server.start()
+    } catch(err) {
+        log.error(log.mod.INDEX, "Failed to start server", err.message)
+        process.exit(-1)
+    }
 }
 
 main()

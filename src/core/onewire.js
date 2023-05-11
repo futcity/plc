@@ -15,6 +15,7 @@ import { readdir, readFile } from "fs"
 /*********************************************************************/
 
 const ONE_WIRE_PATH = "/sys/bus/w1/devices"
+const TEMP_IVALID_VAL = -127
 
 const IBUTTON_PREFIX = "01"
 const DS18B20_PREFIX = "28"
@@ -53,6 +54,12 @@ export function readKeys(listKeys) {
  */
 export function readTemp(id, showTemp) {
     readFile(`${ONE_WIRE_PATH}/${DS18B20_PREFIX}-${id.toLowerCase()}/temperature`, (err, data) => {
-        showTemp(parseInt(data.toString()) / 1000, err)
+        const temp = TEMP_IVALID_VAL
+        
+        if (data) {
+            temp = parseInt(data.toString()) / 1000
+        }
+
+        showTemp(temp, err)
     })
 }
