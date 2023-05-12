@@ -8,20 +8,24 @@
 /*                                                                   */
 /*********************************************************************/
 
-import * as api from "./api.js"
-
 /*********************************************************************/
-/*                        PRIVATE FUNCTIONS                          */
+/*                         PUBLIC CONSTANTS                          */
 /*********************************************************************/
 
-function info(req, resp) {
-    resp.send("<h1>FCPLC</h1>")
+export const index = {
+    INFO: "/api/v1/"
 }
 
-/*********************************************************************/
-/*                         PUBLIC FUNCTIONS                          */
-/*********************************************************************/
+export const meteo = {
+    INFO: "/api/v1/meteo"
+}
 
-export function register(exp) {
-    exp.get(api.index.INFO, (req, resp) => { info(req, resp) })
+export const security = {
+    INFO: "/api/v1/security",
+    STATUS: "/api/v1/security/status"
+}
+
+export const socket = {
+    INFO: "/api/v1/socket",
+    STATUS: "/api/v1/socket/status"
 }

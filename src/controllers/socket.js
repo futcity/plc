@@ -83,6 +83,15 @@ export function getSocket(ctrl, name) {
 }
 
 /**
+* 
+* @param {object} ctrl
+* @param {string} name 
+*/
+export function getSockets(ctrl) {
+    return ctrl.sockets
+}
+
+/**
  * 
  * @param {object} ctrl
  * @param {string} name 

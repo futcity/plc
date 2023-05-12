@@ -11,6 +11,9 @@
 import express from "express"
 import * as log from "../utils/log.js"
 import * as indexV1 from "./api/v1/indexh.js"
+import * as meteoV1 from "./api/v1/meteoh.js"
+import * as socketV1 from "./api/v1/socket.js"
+import * as securityV1 from "./api/v1/securityh.js"
 
 /*********************************************************************/
 /*                        PRIVATE VARIABLES                          */
@@ -42,6 +45,9 @@ export function start() {
     switch (Api) {
         case APIv1:
             indexV1.register(Exp)
+            meteoV1.register(Exp)
+            socketV1.register(Exp)
+            securityV1.register(Exp)
             break
 
         default:

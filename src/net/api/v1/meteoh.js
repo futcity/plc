@@ -8,6 +8,7 @@
 /*                                                                   */
 /*********************************************************************/
 
+import * as meteo from "../../../controllers/meteo.js"
 import * as api from "./api.js"
 
 /*********************************************************************/
@@ -15,7 +16,22 @@ import * as api from "./api.js"
 /*********************************************************************/
 
 function info(req, resp) {
-    resp.send("<h1>FCPLC</h1>")
+    resp.setHeader('Content-Type', 'application/json')
+    const ret = { result: false, data: [] }
+
+    const ctrl = meteo.getController(req.query.ctrl)
+    if (!ctrl) {
+        ret.error = `Controller "${req.query.ctrl}" not found`
+        resp.send(ret)
+        return
+    }
+
+    for (const sensor of meteo.getSensors(ctrl)) {
+        ret.data.push({ name: sensor.name, value: sensor.temp })
+    }
+
+    ret.result = true
+    resp.send(ret)
 }
 
 /*********************************************************************/
@@ -23,5 +39,5 @@ function info(req, resp) {
 /*********************************************************************/
 
 export function register(exp) {
-    exp.get(api.index.INFO, (req, resp) => { info(req, resp) })
+    exp.get(api.meteo.INFO, (req, resp) => { info(req, resp) })
 }
