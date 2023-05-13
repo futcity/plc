@@ -41,6 +41,25 @@ function readButton(socket) {
     return false
 }
 
+function readButtons() {
+    Controllers.forEach((ctrl) => {
+        for (const socket of ctrl.sockets) {
+            if (readButton(socket) && !socket.pressed) {
+                socket.pressed = true
+                setTimeout(() => { socket.pressed = false }, READ_PRESSED_BUTTONS_DELAY)
+    
+                try {
+                    setStatus(ctrl, socket, !socket.status, true)
+                    log.info(log.mod.SOCKET, `Socket "${socket.name}" is switched to "${socket.status}" for controller "${ctrl.name}"`)
+                }
+                catch (err) {
+                    log.error(log.mod.SOCKET, `Failed to switch socket "${socket.name}" status for controller "${ctrl.name}"`, err.message)
+                }
+            }
+        }
+    })
+}
+
 /*********************************************************************/
 /*                         PUBLIC FUNCTIONS                         */
 /*********************************************************************/
@@ -136,23 +155,4 @@ export function start() {
     if (Controllers.size > 0) {
         setInterval(() => readButtons(), READ_BUTTONS_DELAY)
     }
-}
-
-function readButtons() {
-    Controllers.forEach((ctrl) => {
-        for (const socket of ctrl.sockets) {
-            if (readButton(socket) && !socket.pressed) {
-                socket.pressed = true
-                setTimeout(() => { socket.pressed = false }, READ_PRESSED_BUTTONS_DELAY)
-    
-                try {
-                    setStatus(ctrl, socket, !socket.status, true)
-                    log.info(log.mod.SOCKET, `Socket "${socket.name}" is switched to "${socket.status}" for controller "${ctrl.name}"`)
-                }
-                catch (err) {
-                    log.error(log.mod.SOCKET, `Failed to switch socket "${socket.name}" status for controller "${ctrl.name}"`, err.message)
-                }
-            }
-        }
-    })
 }

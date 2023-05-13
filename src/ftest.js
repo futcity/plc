@@ -10,11 +10,14 @@
 
 import * as configs from "./utils/configs.js"
 import * as log from "./utils/log.js"
+import * as gpio from "./core/gpio.js"
 
 const FTEST_LOOP_DELAY = 1000
 
 function ftest() {
-    
+    for (const pin of gpio.getPins()) {
+        
+    }
 }
 
 function main() {
