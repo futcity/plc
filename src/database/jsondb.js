@@ -10,51 +10,82 @@
 
 import { readFileSync, writeFileSync } from "fs"
 
-/*********************************************************************/
-/*                         PRIVATE VARIABLES                         */
-/*********************************************************************/
+export class JsonDatabase {
+    #data = {}
+    #file = ""
 
-var Data = {}
-var FileName = ""
-
-/*********************************************************************/
-/*                          PUBLIC FUNCTIONS                         */
-/*********************************************************************/
-
-export function select(db, table, param, subParam) {
-    return Data[db][table][param][subParam]
-}
-
-export function update(db, table, param, subParam, value) {
-    Data[db][table][param][subParam] = value
-}
-
-export function insert(db, table, param, subParam, value) {
-    if (!Data[db]) {
-        Data[db] = {}
+    /**
+     * 
+     * @param {string} fileName 
+     */
+    loadFromFile(fileName) {
+        const rawData = readFileSync(fileName)
+        this.#data = JSON.parse(rawData.toString())
+        this.#file = fileName
+    }
+    
+    /**
+     * 
+     * @param {string} ip 
+     * @param {string} user 
+     * @param {string} pass 
+     */
+    connect(ip, user, pass) {
+        throw new Error("Method not implemented.")
     }
 
-    if (!Data[db][table]) {
-        Data[db][table] = {}
+    /**
+     * Save data to file
+     */
+    save() {
+        writeFileSync(this.#file, JSON.stringify(this.#data, null, 4))
     }
 
-    if (!Data[db][table][param]) {
-        Data[db][table][param] = {}
+    /**
+     * 
+     * @param {string} db 
+     * @param {string} table 
+     * @param {string} param 
+     * @param {string} subParam 
+     * @returns {*}
+     */
+    select(db, table, param, subParam) {
+        return this.#data[db][table][param][subParam]
     }
-
-    Data[db][table][param][subParam] = value
-}
-
-export function loadFromFile(fileName) {
-    const rawData = readFileSync(fileName)
-    Data = JSON.parse(rawData.toString())
-    FileName = fileName
-}
-
-export function save() {
-    writeFileSync(FileName, JSON.stringify(Data, null, 4))
-}
-
-export function connect(ip, user, pass) {
-    throw new Error("Method not implemented.")
+    
+    /**
+     * 
+     * @param {string} db 
+     * @param {string} table 
+     * @param {string} param 
+     * @param {string} subParam 
+     * @param {*} value 
+     */
+    update(db, table, param, subParam, value) {
+        this.#data[db][table][param][subParam] = value
+    }
+    
+    /**
+     * 
+     * @param {string} db 
+     * @param {string} table 
+     * @param {string} param 
+     * @param {string} subParam 
+     * @param {*} value 
+     */
+    insert(db, table, param, subParam, value) {
+        if (!this.#data[db]) {
+            this.#data[db] = {}
+        }
+    
+        if (!this.#data[db][table]) {
+            this.#data[db][table] = {}
+        }
+    
+        if (!this.#data[db][table][param]) {
+            this.#data[db][table][param] = {}
+        }
+    
+        this.#data[db][table][param][subParam] = value
+    }
 }

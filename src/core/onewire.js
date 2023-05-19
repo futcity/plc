@@ -17,49 +17,51 @@ import { readdir, readFile } from "fs"
 const ONE_WIRE_PATH = "/sys/bus/w1/devices"
 const TEMP_IVALID_VAL = -127
 
-const IBUTTON_PREFIX = "01"
-const DS18B20_PREFIX = "28"
+class Prefix {
+    static IBUTTON  = "01"
+    static DS18B20  = "28"
+}
 
-/*********************************************************************/
-/*                         PUBLIC FUNCTIONS                          */
-/*********************************************************************/
+class OneWire {
+    /**
+     * 
+     * @param {function} listKeys 
+     */
+    readKeys(listKeys) {
+        readdir(ONE_WIRE_PATH, { withFileTypes: true }, (err, files) => {
+            let keys = []
 
-/**
- * 
- * @param {function} listKeys 
- */
-export function readKeys(listKeys) {
-    readdir(ONE_WIRE_PATH, { withFileTypes: true }, (err, files) => {
-        let keys = []
-
-        if (!err) {
-            for (const file of files) {
-                const fname = file.name.split("-")
-                if (fname.length > 0) {
-                    if (fname[0] == IBUTTON_PREFIX) {
-                        keys.push(fname[1].toUpperCase())
+            if (!err) {
+                for (const file of files) {
+                    const fname = file.name.split("-")
+                    if (fname.length > 0) {
+                        if (fname[0] == Prefix.IBUTTON) {
+                            keys.push(fname[1].toUpperCase())
+                        }
                     }
                 }
             }
-        }
-        
-        listKeys(keys, err)
-    })
+            
+            listKeys(keys, err)
+        })
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {function} showTemp 
+     */
+    readTemp(id, showTemp) {
+        readFile(`${ONE_WIRE_PATH}/${Prefix.DS18B20}-${id.toLowerCase()}/temperature`, (err, data) => {
+            const temp = TEMP_IVALID_VAL
+            
+            if (data) {
+                temp = parseInt(data.toString()) / 1000
+            }
+
+            showTemp(temp, err)
+        })
+    }
 }
 
-/**
- * 
- * @param {string} id 
- * @param {function} showTemp 
- */
-export function readTemp(id, showTemp) {
-    readFile(`${ONE_WIRE_PATH}/${DS18B20_PREFIX}-${id.toLowerCase()}/temperature`, (err, data) => {
-        const temp = TEMP_IVALID_VAL
-        
-        if (data) {
-            temp = parseInt(data.toString()) / 1000
-        }
-
-        showTemp(temp, err)
-    })
-}
+export const onewire = new OneWire()

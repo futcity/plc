@@ -8,34 +8,33 @@
 /*                                                                   */
 /*********************************************************************/
 
-export class LogMod {
-    static INDEX       = "INDEX"
-    static SOCKET      = "SOCKET"
-    static SECURITY    = "SECURITY"
-    static METEO       = "METEO"
-    static CONFIGS     = "CONFIGS"
-    static SERVER      = "SERVER"
-}
+import { MeteoSensor } from "./msensor.js"
+import { Controller } from "../controller.js"
 
-class Logger {
-    /**
-     * 
-     * @param {LogMod} mod 
-     * @param {string} message 
-     */
-    info(mod, message) {
-        console.log("INFO", mod, message)
-    }
+const READ_SENSORS_DELAY    = 5000
+
+export class MeteoController extends Controller {
+    #sensors = []
 
     /**
      * 
-     * @param {LogMod} mod 
-     * @param {string} message 
-     * @param {string} err 
+     * @param {MeteoSensor} sensor 
      */
-    error(mod, message, err="") {
-        console.log("ERROR", mod, message, err)
+    addSensor(sensor) {
+        this.#sensors.push(sensor)
+    }
+
+    getSensors() {
+        return this.#sensors
+    }
+
+    start() {
+        setInterval(() => { this.#readSensors() }, READ_SENSORS_DELAY)
+    }
+
+    #readSensors() {
+        for (const sensor of this.#sensors) {
+            sensor.readData()
+        }
     }
 }
-
-export var log = new Logger()

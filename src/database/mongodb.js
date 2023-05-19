@@ -8,26 +8,15 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { JsonDatabase } from "./jsondb.js"
-import { MongoDatabase } from "./mongodb.js"
-
-class Database {
-    #db
-
-    /**
-     * 
-     * @param {JsonDatabase | MongoDatabase} newdb 
-     */
-    setDB(newdb) {
-        this.#db = newdb
-    }
+export class MongoDatabase {
+    #data = {}
 
     /**
      * 
      * @param {string} fileName 
      */
     loadFromFile(fileName) {
-        this.#db.loadFromFile(fileName)
+        throw new Error("Method not implemented.")
     }
     
     /**
@@ -37,51 +26,49 @@ class Database {
      * @param {string} pass 
      */
     connect(ip, user, pass) {
-        this.#db.connect(ip, user, pass)
+        throw new Error("Method not implemented.")
     }
 
     /**
      * Save data to file
      */
     save() {
-        this.#db.save()
+        throw new Error("Method not implemented.")
     }
 
     /**
      * 
-     * @param {string} dbname 
+     * @param {string} db 
      * @param {string} table 
      * @param {string} param 
      * @param {string} subParam 
      * @returns {*}
      */
-    select(dbname, table, param, subParam) {
-        return this.#db.select(dbname, table, param, subParam)
+    select(db, table, param, subParam) {
+        throw new Error("Method not implemented.")
     }
     
     /**
      * 
-     * @param {string} dbname 
+     * @param {string} db 
      * @param {string} table 
      * @param {string} param 
      * @param {string} subParam 
      * @param {*} value 
      */
-    update(dbname, table, param, subParam, value) {
-        this.#db.update(dbname, table, param, subParam, value)
+    update(db, table, param, subParam, value) {
+        throw new Error("Method not implemented.")
     }
-
+    
     /**
      * 
-     * @param {string} dbname 
+     * @param {string} db 
      * @param {string} table 
      * @param {string} param 
      * @param {string} subParam 
      * @param {*} value 
      */
-    insert(dbname, table, param, subParam, value) {
-        this.#db.insert(dbname, table, param, subParam, value)
+    insert(db, table, param, subParam, value) {
+        throw new Error("Method not implemented.")
     }
 }
-
-export var db = new Database()

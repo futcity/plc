@@ -8,34 +8,14 @@
 /*                                                                   */
 /*********************************************************************/
 
-export class LogMod {
-    static INDEX       = "INDEX"
-    static SOCKET      = "SOCKET"
-    static SECURITY    = "SECURITY"
-    static METEO       = "METEO"
-    static CONFIGS     = "CONFIGS"
-    static SERVER      = "SERVER"
-}
-
-class Logger {
-    /**
-     * 
-     * @param {LogMod} mod 
-     * @param {string} message 
-     */
-    info(mod, message) {
-        console.log("INFO", mod, message)
+export class MeteoSensor {
+    constructor(name) {
+        this.name = name
+        this.temperature = 0
+        this.humidity = 0
+        this.pressure = 0
+        this.errors = 0
     }
 
-    /**
-     * 
-     * @param {LogMod} mod 
-     * @param {string} message 
-     * @param {string} err 
-     */
-    error(mod, message, err="") {
-        console.log("ERROR", mod, message, err)
-    }
+    readData() { }
 }
-
-export var log = new Logger()

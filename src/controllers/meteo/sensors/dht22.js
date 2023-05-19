@@ -8,34 +8,10 @@
 /*                                                                   */
 /*********************************************************************/
 
-export class LogMod {
-    static INDEX       = "INDEX"
-    static SOCKET      = "SOCKET"
-    static SECURITY    = "SECURITY"
-    static METEO       = "METEO"
-    static CONFIGS     = "CONFIGS"
-    static SERVER      = "SERVER"
-}
+import { MeteoSensor } from "./msensor.js"
 
-class Logger {
-    /**
-     * 
-     * @param {LogMod} mod 
-     * @param {string} message 
-     */
-    info(mod, message) {
-        console.log("INFO", mod, message)
-    }
-
-    /**
-     * 
-     * @param {LogMod} mod 
-     * @param {string} message 
-     * @param {string} err 
-     */
-    error(mod, message, err="") {
-        console.log("ERROR", mod, message, err)
+export class DHT22 extends MeteoSensor {
+    readData() {
+        throw new Error("Method is not implemented")
     }
 }
-
-export var log = new Logger()

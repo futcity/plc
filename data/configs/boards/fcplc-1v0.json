@@ -1,5 +1,5 @@
 {
-    "extenders": [
+    "units": [
         { "name": "lcd",    "type": "pcf8574",  "addr": 63, "base": 800, "enabled": true  },
         { "name": "gpio",   "type": "mcp23017", "addr": 38, "base": 700, "enabled": true  },
         { "name": "unit-6", "type": "mcp23017", "addr": 37, "base": 600, "enabled": false },
@@ -34,7 +34,5 @@
         { "name": "ext-opto-8",   "pin": 707, "mode": "input",  "pull": "down" }
     ],
 
-    "lcd": [
-        { "name": "main", "pins": { "rs": 800, "rw": 801, "e":  802, "k":  803, "d4": 804, "d5": 805, "d6": 806, "d7": 807 } }
-    ]
+    "lcd": { "rs": 800, "rw": 801, "e":  802, "k":  803, "d4": 804, "d5": 805, "d6": 806, "d7": 807 }
 }
