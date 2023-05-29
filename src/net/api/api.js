@@ -8,20 +8,6 @@
 /*                                                                   */
 /*********************************************************************/
 
-export class IndexApi {
-    static INFO = "/api/v1/"
-}
-
-export class MeteoApi {
-    static INFO = "/api/v1/meteo"
-}
-
-export class SecurityApi {
-    static INFO = "/api/v1/security"
-    static STATUS = "/api/v1/security/status"
-}
-
-export class SocketApi {
-    static INFO = "/api/v1/socket"
-    static STATUS = "/api/v1/socket/status"
+export class ApiVersion {
+    static V1 = "v1"
 }

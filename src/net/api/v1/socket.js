@@ -8,71 +8,61 @@
 /*                                                                   */
 /*********************************************************************/
 
-import * as socket from "../../../controllers/socket.js"
-import * as api from "./api.js"
-import * as log from "../../../utils/log.js"
+import { SocketController } from "../../../controllers/socket/socketctrl.js"
+import { SocketApi } from "./api.js"
+import { log, LogMod, LogType } from "../../../utils/log.js"
+import { getController } from "../../../controllers/controllers.js"
 
-/*********************************************************************/
-/*                        PRIVATE FUNCTIONS                          */
-/*********************************************************************/
-
-function info(req, resp) {
-    resp.setHeader('Content-Type', 'application/json')
-    const ret = { result: false, data: [] }
-
-    const ctrl = socket.getController(req.query.ctrl)
-    if (!ctrl) {
-        ret.error = `Controller "${req.query.ctrl}" not found`
-        resp.send(ret)
-        return
+export class SocketHandlerV1 {
+    register(exp) {
+        exp.get(SocketApi.INFO, (req, resp) => { this.#info(req, resp) })
+        exp.get(SocketApi.STATUS, (req, resp) => { this.#status(req, resp) })
     }
 
-    for (const sock of socket.getSockets(ctrl)) {
-        ret.data.push({ name: sock.name, value: sock.status })
-    }
-
-    ret.result = true
-    resp.send(ret)
-}
-
-function status(req, resp) {
-    resp.setHeader('Content-Type', 'application/json')
-    const ret = { result: false, data: {} }
-
-    const ctrl = socket.getController(req.query.ctrl)
-    if (!ctrl) {
-        ret.error = `Controller "${req.query.ctrl}" not found`
+    #info(req, resp) {
+        resp.setHeader('Content-Type', 'application/json')
+        const ret = { result: false, error: "", data: [] }
+    
+        /** @type {SocketController} */
+        const ctrl = getController(req.query.ctrl)
+        if (!ctrl) {
+            ret.error = `Controller "${req.query.ctrl}" not found`
+            resp.send(ret)
+            log(LogType.ERROR, LogMod.SERVER, ret.error)
+            return
+        }
+    
+        ctrl.getSockets().forEach((socket) => {
+            ret.data.push({ name: socket.name, value: socket.status })
+        })
+    
+        ret.result = true
         resp.send(ret)
-        log.error(log.mod.SERVER, ret.error)
-        return
     }
     
-    const sock = socket.getSocket(ctrl, req.query.socket)
-    if (!sock) {
-        ret.error = `Socket "${req.query.socket}" not found`
+    #status(req, resp) {
+        resp.setHeader('Content-Type', 'application/json')
+        const ret = { result: false, error: "", data: {} }
+    
+        /** @type {SocketController} */
+        const ctrl = getController(req.query.ctrl)
+        if (!ctrl) {
+            ret.error = `Controller "${req.query.ctrl}" not found`
+            resp.send(ret)
+            log(LogType.ERROR, LogMod.SERVER, ret.error, ret.error)
+            return
+        }
+    
+        try {
+            ctrl.setStatus(req.query.socket, !ctrl.getStatus(req.query.socket), true)
+        } catch(err) {
+            ret.error = `Failed to set status for socket "${req.query.socket}" controller "${ctrl.name}"`
+            resp.send(ret)
+            log(LogType.ERROR, LogMod.SERVER, ret.error, err.message)
+            return
+        }
+    
+        ret.result = true
         resp.send(ret)
-        log.error(log.mod.SERVER, ret.error)
-        return
     }
-
-    try {
-        socket.setStatus(ctrl, sock, !socket.status)
-    } catch(err) {
-        ret.error = `Failed to set status for socket "${sock.name}" controller "${ctrl.name}"`
-        resp.send(ret)
-        log.error(log.mod.SERVER, ret.error, err.message)
-        return
-    }
-
-    ret.result = true
-    resp.send(ret)
-}
-
-/*********************************************************************/
-/*                         PUBLIC FUNCTIONS                          */
-/*********************************************************************/
-
-export function register(exp) {
-    exp.get(api.socket.INFO, (req, resp) => { info(req, resp) })
-    exp.get(api.socket.STATUS, (req, resp) => { status(req, resp) })
 }

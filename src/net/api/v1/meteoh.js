@@ -8,36 +8,36 @@
 /*                                                                   */
 /*********************************************************************/
 
-import * as meteo from "../../../controllers/meteo.js"
-import * as api from "./api.js"
+import { MeteoApi } from "./api.js"
+import { getController } from "../../../controllers/controllers.js"
+import { MeteoController } from "../../../controllers/meteo/meteoctrl.js"
 
-/*********************************************************************/
-/*                        PRIVATE FUNCTIONS                          */
-/*********************************************************************/
+export class MeteoHandlerV1 {
+    /**
+     * 
+     * @param {Express} exp 
+     */
+    register(exp) {
+        exp.get(MeteoApi.INFO, (req, resp) => { this.#info(req, resp) })
+    }
 
-function info(req, resp) {
-    resp.setHeader('Content-Type', 'application/json')
-    const ret = { result: false, data: [] }
+    #info(req, resp) {
+        resp.setHeader('Content-Type', 'application/json')
+        const ret = { result: false, error: "", data: [] }
 
-    const ctrl = meteo.getController(req.query.ctrl)
-    if (!ctrl) {
-        ret.error = `Controller "${req.query.ctrl}" not found`
+        /** @type {MeteoController} */
+        const ctrl = getController(req.query.ctrl)
+        if (!ctrl) {
+            ret.error = `Controller "${req.query.ctrl}" not found`
+            resp.send(ret)
+            return
+        }
+
+        for (const sensor of ctrl.getSensors(ctrl)) {
+            ret.data.push({ name: sensor.name, value: sensor.temp })
+        }
+
+        ret.result = true
         resp.send(ret)
-        return
     }
-
-    for (const sensor of meteo.getSensors(ctrl)) {
-        ret.data.push({ name: sensor.name, value: sensor.temp })
-    }
-
-    ret.result = true
-    resp.send(ret)
-}
-
-/*********************************************************************/
-/*                         PUBLIC FUNCTIONS                          */
-/*********************************************************************/
-
-export function register(exp) {
-    exp.get(api.meteo.INFO, (req, resp) => { info(req, resp) })
 }

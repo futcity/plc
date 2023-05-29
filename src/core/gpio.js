@@ -10,6 +10,9 @@
 
 import * as board from "./board/board.js"
 
+/** @type {Map<string, GpioPin>} */
+var Pins = new Map()
+
 export class GpioState {
     static  LOW     = 0
     static  HIGH    = 1
@@ -68,44 +71,38 @@ export class GpioPin {
      */
     write(state) {
         if (this.type == GpioType.DIGITAL) {
-            return board.writePin(pin.pin, state)
+            return board.writePin(this.pin, state)
         }
     }
 }
 
-class Gpio {
-    #pins = new Map()
+/**
+ * 
+ * @param {GpioPin} pin 
+ */
+export function addGpio(pin) {
+    if (!board.setPinMode(pin.pin, pin.mode))
+        throw new Error(`Failed to set I/O GPIO mode "${pin.name}"`)
 
-    /**
-     * 
-     * @param {GpioPin} pin 
-     */
-    addPin(pin) {
-        if (!board.setPinMode(pin.pin, pin.mode))
-            throw new Error(`Failed to set I/O GPIO mode "${pin.name}"`)
+    if (!board.setPinPull(pin.pin, pin.pull))
+        throw new Error(`Failed to set Pull mode for GPIO "${pin.name}"`)
 
-        if (!board.setPinPull(pin.pin, pin.pull))
-            throw new Error(`Failed to set Pull mode for GPIO "${pin.name}"`)
-        
-        this.#pins.set(pin.name, pin)
-    }
-
-    /**
-     * 
-     * @returns {Map<string, GpioPin>}
-     */
-    getPins() {
-        return this.#pins
-    }
-
-    /**
-     * 
-     * @param {string} name 
-     * @returns {GpioPin | undefined}
-     */
-    getPin(name) {
-        return this.#pins.get(name)
-    }
+    Pins.set(pin.name, pin)
 }
 
-export var gpio = new Gpio()
+/**
+ * 
+ * @returns {Map<string, GpioPin>}
+ */
+export function getGpioAll() {
+    return Pins
+}
+
+/**
+ * 
+ * @param {string} name 
+ * @returns {GpioPin | undefined}
+ */
+export function getGpio(name) {
+    return Pins.get(name)
+}

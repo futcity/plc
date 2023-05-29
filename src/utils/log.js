@@ -17,25 +17,18 @@ export class LogMod {
     static SERVER      = "SERVER"
 }
 
-class Logger {
-    /**
-     * 
-     * @param {LogMod} mod 
-     * @param {string} message 
-     */
-    info(mod, message) {
-        console.log("INFO", mod, message)
-    }
-
-    /**
-     * 
-     * @param {LogMod} mod 
-     * @param {string} message 
-     * @param {string} err 
-     */
-    error(mod, message, err="") {
-        console.log("ERROR", mod, message, err)
-    }
+export class LogType {
+    static ERROR = "ERROR"
+    static INFO = "INFO"
 }
 
-export var log = new Logger()
+/**
+ * 
+ * @param {LogType} type 
+ * @param {LogMod} module 
+ * @param {string} msg 
+ * @param {string} err 
+ */
+export function log(type, module, msg, err="") {
+    console.log(type, module, msg, err)
+}

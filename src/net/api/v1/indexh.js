@@ -8,20 +8,18 @@
 /*                                                                   */
 /*********************************************************************/
 
-import * as api from "./api.js"
+import { IndexApi } from "./api.js"
 
-/*********************************************************************/
-/*                        PRIVATE FUNCTIONS                          */
-/*********************************************************************/
+export class IndexHandlerV1 {
+    /**
+     * 
+     * @param {Express} exp 
+     */
+    register(exp) {
+        exp.get(IndexApi.INFO, (req, resp) => { this.#info(req, resp) })
+    }
 
-function info(req, resp) {
-    resp.send("<h1>FCPLC</h1>")
-}
-
-/*********************************************************************/
-/*                         PUBLIC FUNCTIONS                          */
-/*********************************************************************/
-
-export function register(exp) {
-    exp.get(api.index.INFO, (req, resp) => { info(req, resp) })
+    #info(req, resp) {
+        resp.send("<h1>FCPLC</h1>")
+    }
 }

@@ -8,31 +8,27 @@
 /*                                                                   */
 /*********************************************************************/
 
-import * as security from "./controllers/security.js"
-import * as socket from "./controllers/socket.js"
-import * as meteo from "./controllers/meteo.js"
-import * as configs from "./utils/configs.js"
-import * as log from "./utils/log.js"
-import * as server from "./net/server.js"
+import { startControllers } from "./controllers/controllers.js"
+import { loadConfigs } from "./utils/configs.js"
+import { log, LogMod, LogType } from "./utils/log.js"
+import { startServer } from "./net/server.js"
 
 function main() {
     try {
-        configs.loadConfigs("./data/configs")
+        loadConfigs("./data/configs")
     } catch(err) {
-        log.error(log.mod.INDEX, "Failed to read configs", err.message)
+        log(LogType.ERROR, LogMod.INDEX, "Failed to read configs", err.message)
         process.exit(-1)
     }
-
-    security.start()
-    socket.start()
-    meteo.start()
 
     try {
-        server.start()
+        startServer()
     } catch(err) {
-        log.error(log.mod.INDEX, "Failed to start server", err.message)
+        log(LogType.ERROR, LogMod.INDEX, "Failed to start server", err.message)
         process.exit(-1)
     }
+
+    startControllers()
 }
 
 main()

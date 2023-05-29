@@ -8,13 +8,18 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { MeteoSensor } from "./msensor.js"
+import { MeteoSensor } from "./sensors/msensor.js"
 import { Controller } from "../controller.js"
 
 const READ_SENSORS_DELAY    = 5000
 
 export class MeteoController extends Controller {
+    /** @type {Array<MeteoSensor>} */
     #sensors = []
+
+    constructor(name) {
+        super(name)
+    }
 
     /**
      * 
@@ -24,6 +29,10 @@ export class MeteoController extends Controller {
         this.#sensors.push(sensor)
     }
 
+    /**
+     * 
+     * @returns {Array<MeteoSensor>}
+     */
     getSensors() {
         return this.#sensors
     }

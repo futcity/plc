@@ -8,7 +8,7 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { gpio, GpioState } from "../../core/gpio.js"
+import { getGpio, GpioState } from "../../core/gpio.js"
 
 export class SecuritySensorType {
     static MICRO_WAVE   = 0
@@ -37,7 +37,7 @@ export class SecuritySensor {
      * @returns {boolean}
      */
     readState() {
-        const pin = gpio.getPin(this.pin)
+        const pin = getGpio(this.pin)
 
         if (pin) {
             switch (this.type) {
@@ -55,7 +55,6 @@ export class SecuritySensor {
                     break
             }
         }
-
         return false
     }
 }

@@ -11,77 +11,74 @@
 import { JsonDatabase } from "./jsondb.js"
 import { MongoDatabase } from "./mongodb.js"
 
-class Database {
-    #db
+/** @type {JsonDatabase|MongoDatabase} */
+var Database = null
 
-    /**
-     * 
-     * @param {JsonDatabase | MongoDatabase} newdb 
-     */
-    setDB(newdb) {
-        this.#db = newdb
-    }
-
-    /**
-     * 
-     * @param {string} fileName 
-     */
-    loadFromFile(fileName) {
-        this.#db.loadFromFile(fileName)
-    }
-    
-    /**
-     * 
-     * @param {string} ip 
-     * @param {string} user 
-     * @param {string} pass 
-     */
-    connect(ip, user, pass) {
-        this.#db.connect(ip, user, pass)
-    }
-
-    /**
-     * Save data to file
-     */
-    save() {
-        this.#db.save()
-    }
-
-    /**
-     * 
-     * @param {string} dbname 
-     * @param {string} table 
-     * @param {string} param 
-     * @param {string} subParam 
-     * @returns {*}
-     */
-    select(dbname, table, param, subParam) {
-        return this.#db.select(dbname, table, param, subParam)
-    }
-    
-    /**
-     * 
-     * @param {string} dbname 
-     * @param {string} table 
-     * @param {string} param 
-     * @param {string} subParam 
-     * @param {*} value 
-     */
-    update(dbname, table, param, subParam, value) {
-        this.#db.update(dbname, table, param, subParam, value)
-    }
-
-    /**
-     * 
-     * @param {string} dbname 
-     * @param {string} table 
-     * @param {string} param 
-     * @param {string} subParam 
-     * @param {*} value 
-     */
-    insert(dbname, table, param, subParam, value) {
-        this.#db.insert(dbname, table, param, subParam, value)
-    }
+/**
+ * 
+ * @param {JsonDatabase | MongoDatabase} newdb 
+ */
+export function setDB(newdb) {
+    Database = newdb
 }
 
-export var db = new Database()
+/**
+ * 
+ * @param {string} fileName 
+ */
+export function loadFromFileDB(fileName) {
+    Database.loadFromFile(fileName)
+}
+
+/**
+ * 
+ * @param {string} ip 
+ * @param {string} user 
+ * @param {string} pass 
+ */
+export function connectDB(ip, user, pass) {
+    Database.connect(ip, user, pass)
+}
+
+/**
+ * Save data to file
+ */
+export function saveDB() {
+    Database.save()
+}
+
+/**
+ * 
+ * @param {string} dbname 
+ * @param {string} table 
+ * @param {string} param 
+ * @param {string} subParam 
+ * @returns {*}
+ */
+export function selectDB(dbname, table, param, subParam) {
+    return Database.select(dbname, table, param, subParam)
+}
+
+/**
+ * 
+ * @param {string} dbname 
+ * @param {string} table 
+ * @param {string} param 
+ * @param {string} subParam 
+ * @param {*} value 
+ */
+export function updateDB(dbname, table, param, subParam, value) {
+    Database.update(dbname, table, param, subParam, value)
+}
+
+/**
+ * 
+ * @param {string} dbname 
+ * @param {string} table 
+ * @param {string} param 
+ * @param {string} subParam 
+ * @param {*} value 
+ */
+export function insertDB(dbname, table, param, subParam, value) {
+    Database.insert(dbname, table, param, subParam, value)
+}

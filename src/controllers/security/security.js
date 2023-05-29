@@ -8,10 +8,10 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { gpio, GpioState } from "../../core/gpio.js"
-import { log, LogMod } from "../../utils/log.js"
-import { onewire } from "../../core/onewire.js"
-import { db } from "../../database/db.js"
+import { getGpio, GpioState } from "../../core/gpio.js"
+import { log, LogMod, LogType } from "../../utils/log.js"
+import { readWireKeys } from "../../core/onewire.js"
+import { saveDB, updateDB } from "../../database/db.js"
 import { SecuritySensor } from "./ssensor.js"
 import { Controller } from "../controller.js"
 
@@ -28,15 +28,24 @@ export class SecurityPins {
 }
 
 export class SecurityController extends Controller {
+    /** @type {Map<SecurityPins, string>} */
     #pins = new Map()
+    /** @type {Array<string>} */
     #keys = []
+    /** @type {Array<SecuritySensor>} */
     #sensors = []
     #alarm = false
     #status = false
     #lastAlarm = false
     #tmrAlarm
 
-    constructor() {
+    constructor(name) {
+        super(name)
+    }
+
+    /** @returns {Array<SecuritySensor>} */
+    getSensors() {
+        return this.#sensors
     }
 
     /**
@@ -85,12 +94,17 @@ export class SecurityController extends Controller {
         setInterval(() => { this.#readKeys() }, KEYS_CHECK_DELAY)
     }
 
+    /**
+     * 
+     * @param {boolean} val 
+     * @param {boolean} save 
+     */
     setStatus(val, save=true) {
         this.#status = val
+
+        const pin = getGpio(this.#pins.get(SecurityPins.STATUS_LED))
     
-        const pin = gpio.getPin(this.#pins.get(SecurityPins.STATUS_LED))
-    
-        if (ctrl.status) {
+        if (this.#status) {
             if (pin) { pin.write(GpioState.HIGH) }
         } else {
             this.#setAlarm(false)
@@ -100,11 +114,11 @@ export class SecurityController extends Controller {
             }
         }
         
-        log.info(LogMod.SECURITY, `Security controller "${this.name}" changed status to "${this.#status}"`)
+        log(LogType.INFO, LogMod.SECURITY, `Security controller "${this.name}" changed status to "${this.#status}"`)
     
         if (save) {
-            db.update("security", this.name, "global", "status", this.#status)
-            db.save()
+            updateDB("security", this.name, "global", "status", this.#status)
+            saveDB()
         }
     }
 
@@ -112,14 +126,13 @@ export class SecurityController extends Controller {
         for (const sensor of this.#sensors) {
             if (sensor.readState()) {
                 if (!sensor.detected) {
-                    log.info(LogMod.SECURITY, `Security sensor "${sensor.name}" of ctrl "${this.name}" was detected penetration`)
+                    log(LogType.INFO, LogMod.SECURITY, `Security sensor "${sensor.name}" of ctrl "${this.name}" was detected penetration`)
                     
                     if (sensor.alarm && this.#status) {
                         this.#setAlarm(true)
-                        log.info(LogMod.SECURITY, `Alarm for "${this.name}" was started`)
+                        log(LogType.INFO, LogMod.SECURITY, `Alarm for "${this.name}" was started`)
                     }
                 }
-
                 sensor.detected = true
             }
         }
@@ -140,22 +153,22 @@ export class SecurityController extends Controller {
     }
 
     #readKeys() {
-        onewire.readKeys((keys, err) => {
+        readWireKeys((keys, err) => {
             if (err) {
-                log.error(LogMod.SECURITY, `Failed to read security keys`, err.message)
+                log(LogType.ERROR, LogMod.SECURITY, `Failed to read security keys`, err.message)
             } else {
                 if (keys.length > 0) {
                     let found = false
     
                     for (const key of keys) {
                         if (this.#checkKey(key)) {
-                            log.info(LogMod.SECURITY, `Valid key "${key}" detected for controller "${this.name}"`)
+                            log(LogType.INFO, LogMod.SECURITY, `Valid key "${key}" detected for controller "${this.name}"`)
                             
                             try {
-                                this.#setStatus(!this.status, true)
+                                this.setStatus(!this.status, true)
                                 found = true
                             } catch (err) {
-                                log.error(LogMod.SECURITY, `Failed to switch security status by key for ctrl "${this.name}"`, err.message)
+                                log(LogType.ERROR, LogMod.SECURITY, `Failed to switch security status by key for ctrl "${this.name}"`, err.message)
                             }
 
                             break
@@ -163,22 +176,26 @@ export class SecurityController extends Controller {
                     }
     
                     if (!found) {
-                        log.error(LogMod.SECURITY, "Ivalid keys detected: " + keys)
+                        log(LogType.ERROR, LogMod.SECURITY, "Ivalid keys detected: " + keys)
                     }
                 }
             }
         })
     }
 
+    /**
+     * 
+     * @param {boolean} val
+     */
     #setAlarm(val) {
         if (this.#alarm == val)
             return
     
         this.#alarm = val
     
-        const pinRelay = gpio.getPin(this.#pins.get(SecurityPins.ALARM_RELAY))
-        const pinLed = gpio.getPin(this.#pins.get(SecurityPins.ALARM_LED))
-        const pinBuzzer = gpio.getPin(this.#pins.get(SecurityPins.BUZZER))
+        const pinRelay = getGpio(this.#pins.get(SecurityPins.ALARM_RELAY))
+        const pinLed = getGpio(this.#pins.get(SecurityPins.ALARM_LED))
+        const pinBuzzer = getGpio(this.#pins.get(SecurityPins.BUZZER))
     
         if (this.#alarm) {
             if (pinRelay) { pinRelay.write(GpioState.HIGH) }
@@ -196,8 +213,8 @@ export class SecurityController extends Controller {
         if (!this.#alarm)
             return
 
-        const pinLed = gpio.getPin(this.#pins.get(SecurityPins.ALARM_LED))
-        const pinBuzzer = gpio.getPin(this.#pins.get(SecurityPins.BUZZER))
+        const pinLed = getGpio(this.#pins.get(SecurityPins.ALARM_LED))
+        const pinBuzzer = getGpio(this.#pins.get(SecurityPins.BUZZER))
 
         if (!this.#lastAlarm) {
             if (pinLed) { pinLed.write(GpioState.HIGH) }

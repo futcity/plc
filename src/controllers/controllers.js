@@ -8,20 +8,34 @@
 /*                                                                   */
 /*********************************************************************/
 
-export class IndexApi {
-    static INFO = "/api/v1/"
+import { Controller } from "./controller.js"
+
+/** @type {Array<Controller>} */
+var Controllers = []
+
+/**
+ * 
+ * @param {Controller} ctrl 
+ */
+export function addController(ctrl) {
+    Controllers.push(ctrl)
 }
 
-export class MeteoApi {
-    static INFO = "/api/v1/meteo"
+/**
+ * 
+ * @param {string} name 
+ * @returns {Controller}
+ */
+export function getController(name) {
+    for (const ctrl of Controllers) {
+        if (ctrl.name == name) {
+            return ctrl
+        }
+    }
 }
 
-export class SecurityApi {
-    static INFO = "/api/v1/security"
-    static STATUS = "/api/v1/security/status"
-}
-
-export class SocketApi {
-    static INFO = "/api/v1/socket"
-    static STATUS = "/api/v1/socket/status"
+export function startControllers() {
+    for (const ctrl of Controllers) {
+        ctrl.start()
+    }
 }

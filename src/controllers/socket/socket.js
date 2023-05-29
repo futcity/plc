@@ -8,9 +8,15 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { gpio, GpioState } from "../../core/gpio.js"
+import { getGpio, GpioState } from "../../core/gpio.js"
 
 export class Socket {
+    /**
+     * 
+     * @param {string} name 
+     * @param {string} relay 
+     * @param {string} button 
+     */
     constructor(name, relay, button) {
         this.name = name
         this.relay = relay
@@ -20,7 +26,7 @@ export class Socket {
     }
 
     readButton() {
-        const pin = gpio.getPin(this.button)
+        const pin = getGpio(this.button)
     
         if (pin) {
             if (pin.read() == GpioState.HIGH) {
@@ -40,7 +46,7 @@ export class Socket {
     }
 
     #writeRelay(state) {
-        const pin = gpio.getPin(this.button)
+        const pin = getGpio(this.button)
     
         if (pin) {
             if (pin.write(state ? GpioState.HIGH : GpioState.LOW)) {

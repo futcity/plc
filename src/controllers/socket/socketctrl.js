@@ -8,20 +8,44 @@
 /*                                                                   */
 /*********************************************************************/
 
-import { log, LogMod } from "../../utils/log.js"
-import { db } from "../../database/db.js"
+import { log, LogMod, LogType } from "../../utils/log.js"
+import { saveDB, updateDB } from "../../database/db.js"
 import { Controller } from "../controller.js"
+import { Socket } from "./socket.js"
 
 const READ_BUTTONS_DELAY            = 200
 const READ_PRESSED_BUTTONS_DELAY    = 1000
 
 export class SocketController extends Controller {
+    /** @type {Map<string, Socket>} */
     #sockets = new Map()
 
-    addSocket(socket) {
-        this.#sockets.push(socket)
+    constructor(name) {
+        super(name)
     }
 
+    /**
+     * 
+     * @param {Socket} socket 
+     */
+    addSocket(socket) {
+        this.#sockets.set(socket.name, socket)
+    }
+
+    /**
+     * 
+     * @returns {Map<string, Socket>}
+     */
+    getSockets() {
+        return this.#sockets
+    }
+
+    /**
+     * 
+     * @param {string} name 
+     * @param {boolean} status 
+     * @param {boolean} save 
+     */
     setStatus(name, status, save) {
         const socket = this.#sockets.get(name)
         if (!socket) {
@@ -33,11 +57,24 @@ export class SocketController extends Controller {
         }
 
         if (save) {
-            db.update("socket", this.name, socket.name, "status", status)
-            db.save()
+            updateDB("socket", this.name, socket.name, "status", status)
+            saveDB()
         }
 
-        log.info(LogMod.SOCKET, `Socket "${socket.name}" status changed to "${status}" for controller "${this.name}"`)
+        log(LogType.INFO, LogMod.SOCKET, `Socket "${socket.name}" status changed to "${status}" for controller "${this.name}"`)
+    }
+
+    /**
+     * 
+     * @param {string} name Socket name
+     * @return {boolean}
+     */
+    getStatus(name) {
+        const socket = this.#sockets.get(name)
+        if (!socket) {
+            throw new Error("Socket not found")
+        }
+        return socket.status
     }
 
     start() {
@@ -45,19 +82,19 @@ export class SocketController extends Controller {
     }
 
     #readButtons() {
-        for (const socket of this.#sockets) {
+        this.#sockets.forEach((socket, name) => {
             if (socket.readButton() && !socket.pressed) {
                 socket.pressed = true
                 setTimeout(() => { socket.pressed = false }, READ_PRESSED_BUTTONS_DELAY)
-    
+
                 try {
                     this.setStatus(socket.name, !socket.status, true)
-                    log.info(LogMod.SOCKET, `Socket "${socket.name}" is switched to "${socket.status}" for controller "${ctrl.name}"`)
+                    log(LogType.INFO, LogMod.SOCKET, `Socket "${socket.name}" is switched to "${socket.status}" for controller "${this.name}"`)
                 }
                 catch (err) {
-                    log.error(LogMod.SOCKET, `Failed to switch socket "${socket.name}" status for controller "${ctrl.name}"`, err.message)
+                    log(LogType.ERROR, LogMod.SOCKET, `Failed to switch socket "${socket.name}" status for controller "${this.name}"`, err.message)
                 }
             }
-        }
+        })
     }
 }

@@ -8,67 +8,63 @@
 /*                                                                   */
 /*********************************************************************/
 
-import * as security from "../../../controllers/security.js"
-import * as api from "./api.js"
-import * as log from "../../../utils/log.js"
+import { SecurityController } from "../../../controllers/security/security.js"
+import { SecurityApi } from "./api.js"
+import { log, LogMod, LogType } from "../../../utils/log.js"
+import { getController } from "../../../controllers/controllers.js"
 
-/*********************************************************************/
-/*                        PRIVATE FUNCTIONS                          */
-/*********************************************************************/
-
-function info(req, resp) {
-    resp.setHeader('Content-Type', 'application/json')
-    const ret = { result: false, data: [] }
-
-    const ctrl = security.getController(req.query.ctrl)
-    if (!ctrl) {
-        ret.error = `Controller "${req.query.ctrl}" not found`
-        resp.send(ret)
-        return
+export class SecurityHandlerV1 {
+    register(exp) {
+        exp.get(SecurityApi.INFO, (req, resp) => { this.#info(req, resp) })
+        exp.get(SecurityApi.STATUS, (req, resp) => { this.#status(req, resp) })
     }
 
-    for (const sensor of security.getSensors(ctrl)) {
-        ret.data.push({ name: sensor.name, value: sensor.detected })
-    }
-
-    ret.result = true
-    resp.send(ret)
-}
-
-function status(req, resp) {
-    resp.setHeader('Content-Type', 'application/json')
-    const ret = { result: false, data: {} }
-
-    const ctrl = security.getController(req.query.ctrl)
-    if (!ctrl) {
-        ret.error = `Controller "${req.query.ctrl}" not found`
-        resp.send(ret)
-        log.error(log.mod.SERVER, ret.error)
-        return
-    }
+    #info(req, resp) {
+        resp.setHeader('Content-Type', 'application/json')
+        const ret = { result: false, error: "", data: [] }
     
-    try {
-        if (req.query.state) {
-            security.setStatus(ctrl, req.query.state)
-        } else {
-            security.setStatus(ctrl, !security.getStatus(ctrl))
+        /** @type {SecurityController} */
+        const ctrl = getController(req.query.ctrl)
+        if (!ctrl) {
+            ret.error = `Controller "${req.query.ctrl}" not found`
+            resp.send(ret)
+            return
         }
-    } catch(err) {
-        ret.error = `Failed to set security status for controller "${ctrl.name}"`
+    
+        for (const sensor of ctrl.getSensors(ctrl)) {
+            ret.data.push({ name: sensor.name, value: sensor.detected })
+        }
+    
+        ret.result = true
         resp.send(ret)
-        log.error(log.mod.SERVER, ret.error, err.message)
-        return
     }
 
-    ret.result = true
-    resp.send(ret)
-}
+    #status(req, resp) {
+        resp.setHeader('Content-Type', 'application/json')
+        const ret = { result: false, error: "", data: {} }
 
-/*********************************************************************/
-/*                         PUBLIC FUNCTIONS                          */
-/*********************************************************************/
+        /** @type {SecurityController} */
+        const ctrl = getController(req.query.ctrl)
+        if (!ctrl) {
+            ret.error = `Controller "${req.query.ctrl}" not found`
+            resp.send(ret)
+            return
+        }
+        
+        try {
+            if (req.query.state) {
+                ctrl.setStatus(req.query.state, true)
+            } else {
+                ctrl.setStatus(!ctrl.getStatus(ctrl), true)
+            }
+        } catch(err) {
+            ret.error = `Failed to set security status for controller "${ctrl.name}"`
+            resp.send(ret)
+            log(LogType.ERROR, LogMod.SERVER, ret.error, err.message)
+            return
+        }
 
-export function register(exp) {
-    exp.get(api.security.INFO, (req, resp) => { info(req, resp) })
-    exp.get(api.security.STATUS, (req, resp) => { status(req, resp) })
+        ret.result = true
+        resp.send(ret)
+    }
 }

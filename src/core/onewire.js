@@ -22,46 +22,42 @@ class Prefix {
     static DS18B20  = "28"
 }
 
-class OneWire {
-    /**
-     * 
-     * @param {function} listKeys 
-     */
-    readKeys(listKeys) {
-        readdir(ONE_WIRE_PATH, { withFileTypes: true }, (err, files) => {
-            let keys = []
+/**
+ * 
+ * @param {function} listKeys 
+ */
+export function readWireKeys(listKeys) {
+    readdir(ONE_WIRE_PATH, { withFileTypes: true }, (err, files) => {
+        let keys = []
 
-            if (!err) {
-                for (const file of files) {
-                    const fname = file.name.split("-")
-                    if (fname.length > 0) {
-                        if (fname[0] == Prefix.IBUTTON) {
-                            keys.push(fname[1].toUpperCase())
-                        }
+        if (!err) {
+            for (const file of files) {
+                const fname = file.name.split("-")
+                if (fname.length > 0) {
+                    if (fname[0] == Prefix.IBUTTON) {
+                        keys.push(fname[1].toUpperCase())
                     }
                 }
             }
-            
-            listKeys(keys, err)
-        })
-    }
-
-    /**
-     * 
-     * @param {string} id 
-     * @param {function} showTemp 
-     */
-    readTemp(id, showTemp) {
-        readFile(`${ONE_WIRE_PATH}/${Prefix.DS18B20}-${id.toLowerCase()}/temperature`, (err, data) => {
-            const temp = TEMP_IVALID_VAL
-            
-            if (data) {
-                temp = parseInt(data.toString()) / 1000
-            }
-
-            showTemp(temp, err)
-        })
-    }
+        }
+        
+        listKeys(keys, err)
+    })
 }
 
-export const onewire = new OneWire()
+/**
+ * 
+ * @param {string} id 
+ * @param {function} showTemp 
+ */
+export function readWireTemp(id, showTemp) {
+    readFile(`${ONE_WIRE_PATH}/${Prefix.DS18B20}-${id.toLowerCase()}/temperature`, (err, data) => {
+        const temp = TEMP_IVALID_VAL
+        
+        if (data) {
+            temp = parseInt(data.toString()) / 1000
+        }
+
+        showTemp(temp, err)
+    })
+}
