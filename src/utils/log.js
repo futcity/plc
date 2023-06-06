@@ -15,6 +15,7 @@ export class LogMod {
     static METEO       = "METEO"
     static CONFIGS     = "CONFIGS"
     static SERVER      = "SERVER"
+    static FTEST       = "FTEST"
 }
 
 export class LogType {
