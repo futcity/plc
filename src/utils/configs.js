@@ -47,6 +47,10 @@ function readBoardConfigs(path) {
      */
 
     for (const un of data.units) {
+	if (!un.enabled) {
+	    continue
+	}
+
         let type = UnitType.PCF8574
 
         switch (un.type) {

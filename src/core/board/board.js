@@ -8,7 +8,10 @@
 /*                                                                   */
 /*********************************************************************/
 
-var isSandBox = true
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
+var isSandBox = false
 var libBoard = null
 
 if (!isSandBox) {

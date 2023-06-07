@@ -39,6 +39,7 @@ function testGpio() {
     getGpioAll().forEach((gpio, name) => {
         if (gpio.mode == GpioMode.OUTPUT) {
             log(LogType.INFO, LogMod.FTEST, `Set gpio "${name}" state: ${(lastState == GpioState.HIGH) ? "HIGH" : "LOW"}`)
+	    gpio.write(lastState)
         }
     })
 }

@@ -12,7 +12,6 @@ import * as board from "../core/board/board.js"
 
 /**
  * 
- * @param {string} name 
  * @param {number} rs 
  * @param {number} rw 
  * @param {number} e 
@@ -22,7 +21,7 @@ import * as board from "../core/board/board.js"
  * @param {number} d6 
  * @param {number} d7 
  */
-export function initDisplay(name, rs, rw, e, k, d4, d5, d6, d7) {
+export function initDisplay(rs, rw, e, k, d4, d5, d6, d7) {
     if (!board.initLCD1602(rs, rw, e, k, d4, d5, d6, d7))
         throw new Error("Failed to init display")
 }
